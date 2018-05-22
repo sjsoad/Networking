@@ -1,5 +1,5 @@
 //
-//  ErrorParsingService.swift
+//  ErrorParsing.swift
 //  Place
 //
 //  Created by Sergey on 18.08.17.

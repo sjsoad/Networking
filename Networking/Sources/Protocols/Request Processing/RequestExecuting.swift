@@ -13,17 +13,16 @@ public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 
 public protocol RequestExecuting {
     
-    func activityView() -> ActivityViewable?
+    var activityView: ActivityViewable? { get }
     func requestExecutingHandler() -> RequestExecutingHandler
     
 }
 
-extension RequestExecuting where Self: NSObject {
+public extension RequestExecuting where Self: NSObject {
     
-    public func requestExecutingHandler() -> RequestExecutingHandler {
+    func requestExecutingHandler() -> RequestExecutingHandler {
         return { [weak self] (executing) in
-            guard let strongSelf = self,
-                let view = strongSelf.activityView() else { return }
+            guard let view = self?.activityView else { return }
             if executing {
                 view.showActivity()
             } else {
