@@ -9,45 +9,46 @@
 import UIKit
 import Alamofire
 
-public protocol NetworkService {
+public protocol NetworkService: RequestManaging {
     
-    init(requestExecutingService: RequestExecutingService, errorParser: ErrorParsing)
-    func execut<RequestType: APIRequesting>(request: RequestType, success: ((_ response: RequestType.ResponseType) -> Void)?,
-                                            failure: ErrorHandler?, requestHandler: RequestHandler?)
-    func pauseAllRequests(pause: Bool)
-    func cancelAllRequests()
-    func cancel(request: Request)
+    init(requestExecutor: RequestExecutor, errorParser: ErrorParsing)
+    func execut<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?)
 }
 
 open class DefaultNetworkService: NetworkService {
 
-    private var requestExecutingService: RequestExecutingService
+    private var requestExecutor: RequestExecutor
     private var errorParser: ErrorParsing
     
     // MARK: - Public -
     
-    public required init(requestExecutingService: RequestExecutingService, errorParser: ErrorParsing) {
-        self.requestExecutingService = requestExecutingService
+    public required init(requestExecutor: RequestExecutor, errorParser: ErrorParsing) {
+        self.requestExecutor = requestExecutor
         self.errorParser = errorParser
     }
     
-    open func execut<RequestType: APIRequesting>(request: RequestType, success: ((_ response: RequestType.ResponseType) -> Void)?,
-                                                 failure: ErrorHandler?, requestHandler: RequestHandler?) {
-        requestExecutingService.execute(request: request, responseHandler: { [weak self] (response) in
-            self?.process(response: response, from: request, success: success, failure: failure)
-            }, requestHandler: requestHandler)
+    open func execut<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?) {
+        handlers?.requestExecutingHandler?(true)
+        requestExecutor.execute(request: request, responseHandler: { (response) in
+            
+        }, requestHandler: { (request, error) in
+            if request == nil {
+                handlers?.requestExecutingHandler?(false)
+            }
+            handlers?.requestHandler?(request, error)
+        })
     }
     
     open func pauseAllRequests(pause: Bool) {
-        requestExecutingService.sessionManager.session.delegateQueue.isSuspended = pause
+        requestExecutor.pauseAllRequests(pause: pause)
     }
     
     open func cancelAllRequests() {
-        requestExecutingService.sessionManager.session.invalidateAndCancel()
+        requestExecutor.cancelAllRequests()
     }
     
-    open func cancel(request: Request) {
-        request.cancel()
+    open func cancel(request: RequestClass) {
+        requestExecutor.cancel(request: request)
     }
     
     // MARK: - Private -
@@ -57,14 +58,15 @@ open class DefaultNetworkService: NetworkService {
                                                      failure: ErrorHandler?) {
         switch response.result {
         case .success(let value):
-            guard let error = errorParser.parseError(from: value as AnyObject) else {
+            guard let networkError = errorParser.parseError(from: value as AnyObject) else {
                 let response: RequestType.ResponseType = RequestType.ResponseType(JSON: value as AnyObject)
                 success?(response)
                 return
             }
-            failure?(error, request)
+            failure?(networkError)
         case .failure(let error):
-            failure?(error, request)
+            let networkError = NetworkError(error: error, statusCode: response.response?.statusCode)
+            failure?(networkError)
         }
     }
     

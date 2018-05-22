@@ -8,12 +8,12 @@
 
 import UIKit
 
-class NetworkError: Error {
+open class NetworkError: Error {
     
     private(set) var error: Error
-    private(set) var statusCode: Int
+    private(set) var statusCode: Int?
     
-    init(error: Error, statusCode: Int) {
+    init(error: Error, statusCode: Int?) {
         self.error = error
         self.statusCode = statusCode
     }

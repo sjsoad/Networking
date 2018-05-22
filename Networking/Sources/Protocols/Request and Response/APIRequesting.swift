@@ -7,9 +7,6 @@
 //
 
 import Foundation
-import Alamofire
-
-public typealias Method = Alamofire.HTTPMethod
 
 public protocol APIRequesting {
     
@@ -20,36 +17,19 @@ public protocol APIRequesting {
     var headers: [String: String]? { get set }
     var urlString: String { get set }
     
-    var multipartData: Data? { get set }
-    var multipartKey: String? { get set }
-    var mimeType: String? { get set }
-    var fileName: String? { get set }
+//    var multipartData: Data? { get set }
+//    var multipartKey: String? { get set }
+//    var mimeType: String? { get set }
+//    var fileName: String? { get set }
     
     init(withURL urlString: String, parameters: [String: Any]?, headers: [String: String]?)
     
-    init(withURL urlString: String, multipartData: Data?, multipartKey: String?, mimeType: String?, fileName: String?, parameters: [String: Any]?,
-         headers: [String: String]?)
+//    init(withURL urlString: String, multipartData: Data?, multipartKey: String?, mimeType: String?, fileName: String?, parameters: [String: Any]?,
+//         headers: [String: String]?)
 }
 
 public extension APIRequesting {
     
     var HTTPMethod: Method { return .get }
-    
-    init(withURL urlString: String, parameters: [String: Any]?, headers: [String: String]?) {
-        self.urlString = urlString
-        self.parameters = parameters
-        self.headers = headers
-    }
-    
-    init(withURL urlString: String, multipartData: Data?, multipartKey: String?, mimeType: String?, fileName: String?, parameters: [String: Any]?,
-         headers: [String: String]?) {
-        self.urlString = urlString
-        self.multipartData = multipartData
-        self.multipartKey = multipartKey
-        self.mimeType = mimeType
-        self.fileName = fileName
-        self.parameters = parameters
-        self.headers = headers
-    }
     
 }
