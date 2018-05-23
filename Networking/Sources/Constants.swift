@@ -22,15 +22,15 @@ public enum NetworkErrorCode: Int {
 public struct NetworkHandlers<RequestType: APIRequesting> {
     
     var successHandler: ((_ response: RequestType.ResponseType) -> Void)?
-    var requestExecutingHandler: RequestExecutingHandler?
-    var requestErrorHandler: ErrorHandler?
+    var executingHandler: RequestExecutingHandler?
+    var errorHandler: ErrorHandler?
     var requestHandler: RequestHandler?
     
-    init(successHandler: ((_ response: RequestType.ResponseType) -> Void)?, requestExecutingHandler: RequestExecutingHandler?,
-         requestErrorHandler: ErrorHandler?, requestHandler: RequestHandler?) {
+    init(successHandler: ((_ response: RequestType.ResponseType) -> Void)?, executingHandler: RequestExecutingHandler?,
+         errorHandler: ErrorHandler?, requestHandler: RequestHandler?) {
         self.successHandler = successHandler
-        self.requestExecutingHandler = requestExecutingHandler
-        self.requestErrorHandler = requestErrorHandler
+        self.executingHandler = executingHandler
+        self.errorHandler = errorHandler
         self.requestHandler = requestHandler
     }
 }

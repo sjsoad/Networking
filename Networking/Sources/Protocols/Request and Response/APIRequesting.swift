@@ -22,10 +22,6 @@ public protocol APIRequesting {
 //    var mimeType: String? { get set }
 //    var fileName: String? { get set }
     
-    init(withURL urlString: String, parameters: [String: Any]?, headers: [String: String]?)
-    
-//    init(withURL urlString: String, multipartData: Data?, multipartKey: String?, mimeType: String?, fileName: String?, parameters: [String: Any]?,
-//         headers: [String: String]?)
 }
 
 public extension APIRequesting {
