@@ -12,20 +12,28 @@ public protocol APIRequesting {
     
     associatedtype ResponseType: APIResponsing
     
-    var HTTPMethod: Method { get set }
-    var parameters: [String: Any]? { get set }
-    var headers: [String: String]? { get set }
-    var urlString: String { get set }
+    var HTTPMethod: Method { get }
+    var parameters: [String: Any]? { get }
+    var headers: [String: String]? { get }
+    var urlString: String { get }
     
-//    var multipartData: Data? { get set }
-//    var multipartKey: String? { get set }
-//    var mimeType: String? { get set }
-//    var fileName: String? { get set }
+    var multipartData: Data? { get }
+    var multipartKey: String? { get }
+    var mimeType: String? { get }
+    var fileName: String? { get }
     
 }
 
 public extension APIRequesting {
     
     var HTTPMethod: Method { return .get }
+    
+    var parameters: [String: Any]? { return nil }
+    var headers: [String: String]? { return nil }
+    
+    var multipartData: Data? { return nil }
+    var multipartKey: String? { return nil }
+    var mimeType: String? { return nil }
+    var fileName: String? { return nil }
     
 }

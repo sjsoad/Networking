@@ -15,7 +15,7 @@ public protocol RequestExecutor: RequestManaging {
     var errorParser: ErrorParsing { get }
     init(sessionManager: SessionManager, errorParser: ErrorParsing)
     func execute<RequestType: APIRequesting>(request: RequestType, successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                             errorHandler: ErrorHandler?, requestHandler: RequestHandler?)
+                                             errorHandler: ErrorHandler<RequestType>?, requestHandler: RequestHandler?)
     
 }
 
@@ -32,7 +32,7 @@ open class DefaultRequestExecutor: RequestExecutor {
     }
     
     open func execute<RequestType: APIRequesting>(request: RequestType, successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                                  errorHandler: ErrorHandler?, requestHandler: RequestHandler?) {
+                                                  errorHandler: ErrorHandler<RequestType>?, requestHandler: RequestHandler?) {
         build(from: request, requestHandler: { [weak self] (alamofireRequest, error) in
             requestHandler?(alamofireRequest, error)
             guard let alamofireRequest = alamofireRequest else { return }
@@ -78,22 +78,25 @@ open class DefaultRequestExecutor: RequestExecutor {
                 }
             }
         }
-        //        multipartFormData.append(request.multipartData, withName: request.multipartKey, fileName: request.fileName, mimeType: request.mimeType)
+        guard let multipartData = request.multipartData, let multipartKey = request.multipartKey, let fileName = request.fileName,
+            let mimeType = request.mimeType else { return }
+        multipartFormData.append(multipartData, withName: multipartKey, fileName: fileName, mimeType: mimeType)
     }
     
     private func process<RequestType: APIRequesting>(response: DataResponse<Any>, from request: RequestType,
-                                                     successHandler: ((_ response: RequestType.ResponseType) -> Void)?, errorHandler: ErrorHandler?) {
+                                                     successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
+                                                     errorHandler: ErrorHandler<RequestType>?) {
         switch response.result {
         case .success(let value):
-            guard let networkError = errorParser.parseError(from: value as AnyObject) else {
+            guard let networkError = errorParser.parseError(from: value as AnyObject, response: response.response) else {
                 let response: RequestType.ResponseType = RequestType.ResponseType(JSON: value as AnyObject)
                 successHandler?(response)
                 return
             }
-            errorHandler?(networkError)
+            errorHandler?(networkError, request)
         case .failure(let error):
             let networkError = NetworkError(error: error, statusCode: response.response?.statusCode)
-            errorHandler?(networkError)
+            errorHandler?(networkError, request)
         }
     }
 }

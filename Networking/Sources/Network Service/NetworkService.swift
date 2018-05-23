@@ -28,12 +28,17 @@ open class DefaultNetworkService: NetworkService {
     
     open func execut<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?) {
         handlers?.executingHandler?(true)
-        requestExecutor.execute(request: request, successHandler: handlers?.successHandler, errorHandler: handlers?.errorHandler,
-                                requestHandler: { (request, error) in
-                                    if request == nil {
-                                        handlers?.executingHandler?(false)
-                                    }
-                                    handlers?.requestHandler?(request, error)
+        requestExecutor.execute(request: request, successHandler: { (response) in
+            handlers?.executingHandler?(false)
+            handlers?.successHandler?(response)
+        }, errorHandler: { (networkError, request) in
+            handlers?.executingHandler?(false)
+            handlers?.errorHandler?(networkError, request)
+        }, requestHandler: { (request, error) in
+            if request == nil {
+                handlers?.executingHandler?(false)
+            }
+            handlers?.requestHandler?(request, error)
         })
     }
     

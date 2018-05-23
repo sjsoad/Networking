@@ -12,14 +12,14 @@ import SKAlertViewable
 public protocol RequestErrorHandling: AlertViewable {
     
     var alertView: AlertViewable? { get }
-    func requestErrorHandler() -> ErrorHandler
+    func requestErrorHandler<RequestType: APIRequesting>() -> ErrorHandler<RequestType>
     
 }
 
 public extension RequestErrorHandling where Self: NSObject {
     
-    func requestErrorHandler() -> ErrorHandler {
-        return { [weak self] (networkError)  in
+    func requestErrorHandler<RequestType: APIRequesting>() -> ErrorHandler<RequestType> {
+        return { [weak self] (networkError, failedRequest)  in
             guard let view = self?.alertView else { return }
             view.show(message: networkError.error.localizedDescription, state: .error)
         }
