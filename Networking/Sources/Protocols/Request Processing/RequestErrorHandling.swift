@@ -19,7 +19,7 @@ public protocol RequestErrorHandling: AlertViewable {
 public extension RequestErrorHandling where Self: NSObject {
     
     func requestErrorHandler<RequestType: APIRequesting>() -> ErrorHandler<RequestType> {
-        return { [weak self] (networkError, failedRequest)  in
+        return { [weak self] (networkError, failedRequest, handlers)  in
             guard let view = self?.alertView else { return }
             view.show(message: networkError.error.localizedDescription, state: .error)
         }

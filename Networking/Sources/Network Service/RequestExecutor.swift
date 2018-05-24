@@ -15,7 +15,7 @@ public protocol RequestExecutor: RequestManaging {
     var errorParser: ErrorParsing { get }
     init(sessionManager: SessionManager, errorParser: ErrorParsing)
     func execute<RequestType: APIRequesting>(request: RequestType, successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                             errorHandler: ErrorHandler<RequestType>?, requestHandler: RequestHandler?)
+                                             errorHandler: ((NetworkError) -> Void)?, requestHandler: RequestHandler?)
     
 }
 
@@ -32,7 +32,7 @@ open class DefaultRequestExecutor: RequestExecutor {
     }
     
     open func execute<RequestType: APIRequesting>(request: RequestType, successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                                  errorHandler: ErrorHandler<RequestType>?, requestHandler: RequestHandler?) {
+                                                  errorHandler: ((NetworkError) -> Void)?, requestHandler: RequestHandler?) {
         build(from: request, requestHandler: { [weak self] (alamofireRequest, error) in
             requestHandler?(alamofireRequest, error)
             guard let alamofireRequest = alamofireRequest else { return }
@@ -85,7 +85,7 @@ open class DefaultRequestExecutor: RequestExecutor {
     
     private func process<RequestType: APIRequesting>(response: DataResponse<Any>, from request: RequestType,
                                                      successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                                     errorHandler: ErrorHandler<RequestType>?) {
+                                                     errorHandler: ((NetworkError) -> Void)?) {
         switch response.result {
         case .success(let value):
             guard let networkError = errorParser.parseError(from: value as AnyObject, response: response.response) else {
@@ -93,10 +93,10 @@ open class DefaultRequestExecutor: RequestExecutor {
                 successHandler?(response)
                 return
             }
-            errorHandler?(networkError, request)
+            errorHandler?(networkError)
         case .failure(let error):
             let networkError = NetworkError(error: error, statusCode: response.response?.statusCode)
-            errorHandler?(networkError, request)
+            errorHandler?(networkError)
         }
     }
 }

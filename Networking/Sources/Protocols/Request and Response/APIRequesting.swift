@@ -8,9 +8,11 @@
 
 import Foundation
 
-public protocol APIRequesting {
+public protocol APIRequesting: class {
     
     associatedtype ResponseType: APIResponsing
+    
+    var accessToken: String? { get set }
     
     var HTTPMethod: Method { get }
     var parameters: [String: Any]? { get }
@@ -21,6 +23,8 @@ public protocol APIRequesting {
     var multipartKey: String? { get }
     var mimeType: String? { get }
     var fileName: String? { get }
+    
+    func update(accessToken: String?)
     
 }
 
@@ -35,5 +39,9 @@ public extension APIRequesting {
     var multipartKey: String? { return nil }
     var mimeType: String? { return nil }
     var fileName: String? { return nil }
+    
+    func update(accessToken: String?) {
+        self.accessToken = accessToken
+    }
     
 }

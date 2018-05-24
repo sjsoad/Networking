@@ -13,7 +13,8 @@ public typealias RequestClass = Request
 public typealias Method = Alamofire.HTTPMethod
 
 public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
-public typealias ErrorHandler<RequestType> = (_ error: NetworkError, _ failedRequest: RequestType) -> Void
+public typealias ErrorHandler<RequestType: APIRequesting> = (_ error: NetworkError, _ failedRequest: RequestType, _ handlers: NetworkHandlers<RequestType>?) -> Void
+public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 
 public enum NetworkErrorCode: Int {
     case unauthorized = 401

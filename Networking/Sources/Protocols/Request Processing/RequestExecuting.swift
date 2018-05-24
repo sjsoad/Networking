@@ -9,8 +9,6 @@
 import UIKit
 import SKActivityViewable
 
-public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
-
 public protocol RequestExecuting {
     
     var activityView: ActivityViewable? { get }

@@ -31,9 +31,9 @@ open class DefaultNetworkService: NetworkService {
         requestExecutor.execute(request: request, successHandler: { (response) in
             handlers?.executingHandler?(false)
             handlers?.successHandler?(response)
-        }, errorHandler: { (networkError, request) in
+        }, errorHandler: { (networkError) in
             handlers?.executingHandler?(false)
-            handlers?.errorHandler?(networkError, request)
+            handlers?.errorHandler?(networkError, request, handlers)
         }, requestHandler: { (request, error) in
             if request == nil {
                 handlers?.executingHandler?(false)
