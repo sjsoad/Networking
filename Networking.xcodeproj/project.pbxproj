@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A51852CF20BD28CF00EE29E4 /* AuthentificatedAPIRequesting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51852CE20BD28CF00EE29E4 /* AuthentificatedAPIRequesting.swift */; };
 		A543F25F20973CB300F2F0A7 /* Networking.h in Headers */ = {isa = PBXBuildFile; fileRef = A543F25D20973CB300F2F0A7 /* Networking.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A55F120A20B42D25009D70BA /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55F120920B42D25009D70BA /* NetworkError.swift */; };
 		A55F120C20B42DA4009D70BA /* RequestExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55F120B20B42DA4009D70BA /* RequestExecutor.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A51852CE20BD28CF00EE29E4 /* AuthentificatedAPIRequesting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthentificatedAPIRequesting.swift; sourceTree = "<group>"; };
 		A543F25A20973CB300F2F0A7 /* Networking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Networking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A543F25D20973CB300F2F0A7 /* Networking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Networking.h; sourceTree = "<group>"; };
 		A55F120920B42D25009D70BA /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 			children = (
 				A57AB1CC20B3EE44008BE9C5 /* APIRequesting.swift */,
 				A57AB1CD20B3EE44008BE9C5 /* APIResponsing.swift */,
+				A51852CE20BD28CF00EE29E4 /* AuthentificatedAPIRequesting.swift */,
 			);
 			path = "Request and Response";
 			sourceTree = "<group>";
@@ -230,6 +233,7 @@
 				A57AB1C920B3ED09008BE9C5 /* NetworkService.swift in Sources */,
 				A57AB1D720B3EE44008BE9C5 /* RequestErrorHandling.swift in Sources */,
 				A57AB1DB20B3EE76008BE9C5 /* ErrorParsing.swift in Sources */,
+				A51852CF20BD28CF00EE29E4 /* AuthentificatedAPIRequesting.swift in Sources */,
 				A57AB1D820B3EE44008BE9C5 /* RequestExecuting.swift in Sources */,
 				A55F121320B445B6009D70BA /* RequestManaging.swift in Sources */,
 				A57AB1D420B3EE44008BE9C5 /* APIResponsing.swift in Sources */,

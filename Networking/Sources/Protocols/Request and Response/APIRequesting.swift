@@ -37,19 +37,3 @@ public extension APIRequesting {
     var fileName: String? { return nil }
     
 }
-
-public protocol AuthentificatedAPIRequesting: class, APIRequesting {
-    
-    var accessToken: String? { get set }
-    
-    func update(accessToken: String?)
-    
-}
-
-public extension AuthentificatedAPIRequesting {
-    
-    func update(accessToken: String?) {
-        self.accessToken = accessToken
-    }
-    
-}
