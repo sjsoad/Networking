@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
 s.platform = :ios
 s.swift_version = '4.0'
 s.ios.deployment_target = '10.0'
-s.name = "SKNetworking"
+s.name = "SKNetworkingLib"
 s.summary = "Library helps to create and execute requests"
 s.requires_arc = true
 
