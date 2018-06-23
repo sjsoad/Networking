@@ -19,7 +19,6 @@ open class DefaultNetworkService: NetworkService {
 
     private var requestExecutor: RequestExecutor
     
-    
     // MARK: - Public -
     
     public required init(requestExecutor: RequestExecutor) {
