@@ -12,7 +12,7 @@ import Alamofire
 public protocol NetworkService: RequestManaging {
     
     init(requestExecutor: RequestExecutor)
-    func execut<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?)
+    func execute<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?)
 }
 
 open class DefaultNetworkService: NetworkService {
@@ -25,7 +25,7 @@ open class DefaultNetworkService: NetworkService {
         self.requestExecutor = requestExecutor
     }
     
-    open func execut<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?) {
+    open func execute<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?) {
         handlers?.executingHandler?(true)
         requestExecutor.execute(request: request, successHandler: { (response) in
             handlers?.executingHandler?(false)
