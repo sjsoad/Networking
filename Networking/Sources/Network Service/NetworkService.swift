@@ -28,18 +28,6 @@ open class DefaultNetworkService: NetworkService {
     
     open func execute<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?) {
         handlers?.executingHandler?(true)
-//        requestExecutor.execute(request: request, successHandler: { (response) in
-//            handlers?.executingHandler?(false)
-//            handlers?.successHandler?(response)
-//        }, errorHandler: { (networkError) in
-//            handlers?.executingHandler?(false)
-//            handlers?.errorHandler?(networkError, request, handlers)
-//        }, requestHandler: { (request, error) in
-//            if request == nil {
-//                handlers?.executingHandler?(false)
-//            }
-//            handlers?.requestHandler?(request, error)
-//        })
     }
     
     open func pauseAllRequests(pause: Bool) {
@@ -61,8 +49,8 @@ open class DefaultNetworkService: NetworkService {
         var networkError: NetworkError?
         switch response.result {
         case .success(let value):
-            networkError = errorParser.parseError(from: value as AnyObject, response: response.response)
-            requestResponse = ResponseType(JSON: value as AnyObject)
+            networkError = errorParser.parseError(from: value, httpURLResponse: response.response)
+            requestResponse = ResponseType(JSON: value)
         case .failure(let error):
             networkError = NetworkError(error: error, statusCode: response.response?.statusCode)
         }

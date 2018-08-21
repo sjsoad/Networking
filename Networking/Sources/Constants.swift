@@ -16,10 +16,6 @@ public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) ->
 public typealias ErrorHandler<RequestType: APIRequesting> = (_ error: NetworkError, _ failedRequest: RequestType, _ handlers: NetworkHandlers<RequestType>?) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 
-public enum NetworkErrorCode: Int {
-    case unauthorized = 401
-}
-
 public struct NetworkHandlers<RequestType: APIRequesting> {
     
     var successHandler: ((_ response: RequestType.ResponseType) -> Void)?
@@ -27,8 +23,8 @@ public struct NetworkHandlers<RequestType: APIRequesting> {
     var errorHandler: ErrorHandler<RequestType>?
     var requestHandler: RequestHandler?
     
-    public init(successHandler: ((_ response: RequestType.ResponseType) -> Void)?, executingHandler: RequestExecutingHandler?,
-         errorHandler: ErrorHandler<RequestType>?, requestHandler: RequestHandler?) {
+    public init(successHandler: ((_ response: RequestType.ResponseType) -> Void)? = nil, executingHandler: RequestExecutingHandler? = nil,
+         errorHandler: ErrorHandler<RequestType>? = nil, requestHandler: RequestHandler? = nil) {
         self.successHandler = successHandler
         self.executingHandler = executingHandler
         self.errorHandler = errorHandler
