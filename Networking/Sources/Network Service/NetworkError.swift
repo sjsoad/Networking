@@ -6,16 +6,11 @@
 //  Copyright © 2018 Sergey Kostyan. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
-open class NetworkError: Error {
+public struct NetworkError {
     
     public private(set) var error: Error
     public private(set) var statusCode: Int?
-    
-    public init(error: Error, statusCode: Int?) {
-        self.error = error
-        self.statusCode = statusCode
-    }
     
 }

@@ -6,39 +6,40 @@
 //  Copyright © 2018 Sergey Kostyan. All rights reserved.
 //
 
-import UIKit
 import Alamofire
 
 public protocol NetworkService: RequestManaging {
     
-    init(requestExecutor: RequestExecutor)
+    init(requestExecutor: RequestExecutor, errorParser: ErrorParsing)
     func execute<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?)
 }
 
 open class DefaultNetworkService: NetworkService {
 
     private var requestExecutor: RequestExecutor
+    private var errorParser: ErrorParsing
     
     // MARK: - Public -
     
-    public required init(requestExecutor: RequestExecutor) {
+    public required init(requestExecutor: RequestExecutor, errorParser: ErrorParsing) {
         self.requestExecutor = requestExecutor
+        self.errorParser = errorParser
     }
     
     open func execute<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?) {
         handlers?.executingHandler?(true)
-        requestExecutor.execute(request: request, successHandler: { (response) in
-            handlers?.executingHandler?(false)
-            handlers?.successHandler?(response)
-        }, errorHandler: { (networkError) in
-            handlers?.executingHandler?(false)
-            handlers?.errorHandler?(networkError, request, handlers)
-        }, requestHandler: { (request, error) in
-            if request == nil {
-                handlers?.executingHandler?(false)
-            }
-            handlers?.requestHandler?(request, error)
-        })
+//        requestExecutor.execute(request: request, successHandler: { (response) in
+//            handlers?.executingHandler?(false)
+//            handlers?.successHandler?(response)
+//        }, errorHandler: { (networkError) in
+//            handlers?.executingHandler?(false)
+//            handlers?.errorHandler?(networkError, request, handlers)
+//        }, requestHandler: { (request, error) in
+//            if request == nil {
+//                handlers?.executingHandler?(false)
+//            }
+//            handlers?.requestHandler?(request, error)
+//        })
     }
     
     open func pauseAllRequests(pause: Bool) {
@@ -51,6 +52,21 @@ open class DefaultNetworkService: NetworkService {
     
     open func cancel(request: RequestClass) {
         requestExecutor.cancel(request: request)
+    }
+    
+    // MARK: - Private -
+    
+    private func process<ResponseType: APIResponsing>(response: DataResponse<Any>) -> (ResponseType?, NetworkError?) {
+        var requestResponse: ResponseType?
+        var networkError: NetworkError?
+        switch response.result {
+        case .success(let value):
+            networkError = errorParser.parseError(from: value as AnyObject, response: response.response)
+            requestResponse = ResponseType(JSON: value as AnyObject)
+        case .failure(let error):
+            networkError = NetworkError(error: error, statusCode: response.response?.statusCode)
+        }
+        return (requestResponse, networkError)
     }
     
 }

@@ -6,39 +6,30 @@
 //  Copyright © 2018 Sergey Kostyan. All rights reserved.
 //
 
-import UIKit
 import Alamofire
 
 public protocol RequestExecutor: RequestManaging {
     
     var sessionManager: SessionManager { get }
-    var errorParser: ErrorParsing { get }
-    init(sessionManager: SessionManager, errorParser: ErrorParsing)
-    func execute<RequestType: APIRequesting>(request: RequestType, successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                             errorHandler: ((NetworkError) -> Void)?, requestHandler: RequestHandler?)
+    init(sessionManager: SessionManager)
+    func execute<RequestType: APIRequesting>(request: RequestType, requestHandler: RequestHandler?, completion: @escaping (DataResponse<Any>) -> ())
     
 }
 
 open class DefaultRequestExecutor: RequestExecutor {
 
     public private(set) var sessionManager: SessionManager
-    public private(set) var errorParser: ErrorParsing
     
     // MARK: - Public -
     
-    public required init(sessionManager: SessionManager, errorParser: ErrorParsing) {
+    public required init(sessionManager: SessionManager = SessionManager.default) {
         self.sessionManager = sessionManager
-        self.errorParser = errorParser
     }
     
-    open func execute<RequestType: APIRequesting>(request: RequestType, successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                                  errorHandler: ((NetworkError) -> Void)?, requestHandler: RequestHandler?) {
-        build(from: request, requestHandler: { [weak self] (alamofireRequest, error) in
+    open func execute<RequestType: APIRequesting>(request: RequestType, requestHandler: RequestHandler?, completion: @escaping (DataResponse<Any>) -> ()) {
+        build(from: request, requestHandler: { (alamofireRequest, error) in
             requestHandler?(alamofireRequest, error)
-            guard let alamofireRequest = alamofireRequest else { return }
-            alamofireRequest.responseJSON(completionHandler: { [weak self] (response) in
-                self?.process(response: response, from: request, successHandler: successHandler, errorHandler: errorHandler)
-            })
+            alamofireRequest?.responseJSON(completionHandler: completion)
         })
     }
     
@@ -53,13 +44,12 @@ open class DefaultRequestExecutor: RequestExecutor {
     open func cancel(request: RequestClass) {
         request.cancel()
     }
-
     
     // MARK: - Private -
     
     private func build<RequestType: APIRequesting>(from request: RequestType, requestHandler: ((UploadRequest?, Error?) -> Void)?) {
         sessionManager.upload(multipartFormData: { [weak self] (multipartFormData) in
-            self?.append(multipartFormData: multipartFormData, with: request)
+            self?.append(multipartFormData: multipartFormData, from: request)
         }, to: request.urlString, method: request.HTTPMethod, headers: request.headers) { (result) in
             switch result {
             case .success(let upload, _, _):
@@ -70,33 +60,14 @@ open class DefaultRequestExecutor: RequestExecutor {
         }
     }
     
-    private func append<RequestType: APIRequesting>(multipartFormData: MultipartFormData, with request: RequestType) {
-        if let parameters = request.parameters {
-            for (key, value) in parameters {
-                if let data = "\(value)".data(using: String.Encoding.utf8) {
-                    multipartFormData.append(data, withName: key as String)
-                }
-            }
-        }
+    private func append<RequestType: APIRequesting>(multipartFormData: MultipartFormData, from request: RequestType) {
+        request.parameters?.forEach({ (key, value) in
+            guard let data = "\(value)".data(using: String.Encoding.utf8) else { return }
+            multipartFormData.append(data, withName: key)
+        })
         guard let multipartData = request.multipartData, let multipartKey = request.multipartKey, let fileName = request.fileName,
             let mimeType = request.mimeType else { return }
         multipartFormData.append(multipartData, withName: multipartKey, fileName: fileName, mimeType: mimeType)
     }
     
-    private func process<RequestType: APIRequesting>(response: DataResponse<Any>, from request: RequestType,
-                                                     successHandler: ((_ response: RequestType.ResponseType) -> Void)?,
-                                                     errorHandler: ((NetworkError) -> Void)?) {
-        switch response.result {
-        case .success(let value):
-            guard let networkError = errorParser.parseError(from: value as AnyObject, response: response.response) else {
-                let response: RequestType.ResponseType = RequestType.ResponseType(JSON: value as AnyObject)
-                successHandler?(response)
-                return
-            }
-            errorHandler?(networkError)
-        case .failure(let error):
-            let networkError = NetworkError(error: error, statusCode: response.response?.statusCode)
-            errorHandler?(networkError)
-        }
-    }
 }

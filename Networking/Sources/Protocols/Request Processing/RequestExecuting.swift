@@ -1,12 +1,12 @@
 //
-//  RequestExecutingViewProtocol.swift
+//  RequestExecuting.swift
 //  GeoTouch
 //
 //  Created by Sergey on 14.03.17.
 //  Copyright © 2017 Sergey. All rights reserved.
 //
 
-import UIKit
+import Foundation
 import SKActivityViewable
 
 public protocol RequestExecuting {
@@ -20,12 +20,10 @@ public extension RequestExecuting where Self: NSObject {
     
     func requestExecutingHandler() -> RequestExecutingHandler {
         return { [weak self] (executing) in
-            guard let view = self?.activityView else { return }
-            if executing {
-                view.showActivity()
-            } else {
-                view.hideActivity()
-            }
+            guard executing else {
+                self?.activityView?.showActivity()
+                return }
+            self?.activityView?.hideActivity()
         }
     }
     

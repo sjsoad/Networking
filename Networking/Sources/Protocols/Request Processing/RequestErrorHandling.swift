@@ -1,5 +1,5 @@
 //
-//  RequestErrorHandlerProtocol.swift
+//  RequestErrorHandling.swift
 //  GeoTouch
 //
 //  Created by Sergey on 14.03.17.
@@ -19,9 +19,8 @@ public protocol RequestErrorHandling: AlertViewable {
 public extension RequestErrorHandling where Self: NSObject {
     
     func requestErrorHandler<RequestType: APIRequesting>() -> ErrorHandler<RequestType> {
-        return { [weak self] (networkError, failedRequest, handlers)  in
-            guard let view = self?.alertView else { return }
-            view.show(message: networkError.error.localizedDescription, state: .error)
+        return { [weak self] (networkError, failedRequest, handlers) in
+            self?.alertView?.show(message: networkError.error.localizedDescription, state: .error)
         }
     }
     
