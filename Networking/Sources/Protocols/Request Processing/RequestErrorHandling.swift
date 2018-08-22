@@ -20,7 +20,7 @@ public extension RequestErrorHandling where Self: NSObject {
     
     func requestErrorHandler<RequestType: APIRequesting>() -> ErrorHandler<RequestType> {
         return { [weak self] (networkError, failedRequest, handlers) in
-            self?.alertView?.show(message: networkError.error.localizedDescription, state: .error)
+            self?.alertView?.show(message: networkError.error.localizedDescription, for: .error)
         }
     }
     
