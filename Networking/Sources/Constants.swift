@@ -18,10 +18,10 @@ public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 
 public struct NetworkHandlers<RequestType: APIRequesting> {
     
-    var successHandler: ((_ response: RequestType.ResponseType) -> Void)?
-    var executingHandler: RequestExecutingHandler?
-    var errorHandler: ErrorHandler<RequestType>?
-    var requestHandler: RequestHandler?
+    let successHandler: ((_ response: RequestType.ResponseType) -> Void)?
+    let executingHandler: RequestExecutingHandler?
+    let errorHandler: ErrorHandler<RequestType>?
+    let requestHandler: RequestHandler?
     
     public init(successHandler: ((_ response: RequestType.ResponseType) -> Void)? = nil, executingHandler: RequestExecutingHandler? = nil,
          errorHandler: ErrorHandler<RequestType>? = nil, requestHandler: RequestHandler? = nil) {

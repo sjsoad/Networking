@@ -10,8 +10,8 @@ import Foundation
 
 public struct NetworkError {
     
-    public private(set) var error: Error
-    public private(set) var statusCode: Int?
+    public let error: Error
+    public let statusCode: Int?
     
     public init(error: Error, statusCode: Int?) {
         self.error = error
