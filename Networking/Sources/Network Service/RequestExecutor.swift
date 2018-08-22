@@ -62,7 +62,7 @@ open class DefaultRequestExecutor: RequestExecutor {
     
     private func append<RequestType: APIRequesting>(multipartFormData: MultipartFormData, from request: RequestType) {
         request.parameters?.forEach({ (key, value) in
-            guard let data = "\(value)".data(using: String.Encoding.utf8) else { return }
+            guard let data = "\(value)".data else { return }
             multipartFormData.append(data, withName: key)
         })
         guard let multipartData = request.multipartData, let multipartKey = request.multipartKey, let fileName = request.fileName,
