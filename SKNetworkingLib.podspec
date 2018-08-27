@@ -9,7 +9,7 @@ s.summary = "Library helps to create and execute requests"
 s.requires_arc = true
 
 # 2
-s.version = "0.0.2"
+s.version = "0.0.3"
 
 # 3
 s.license = { :type => "MIT", :file => "LICENSE" }
