@@ -11,7 +11,7 @@ import Alamofire
 public protocol NetworkService: RequestManaging {
     
     init(requestExecutor: RequestExecutor, errorParser: ErrorParsing)
-    func execute<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?)
+    func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(request: RequestType, handlers: NetworkHandlers<RequestType, ResponseType>?)
 }
 
 open class DefaultNetworkService: NetworkService {
@@ -26,8 +26,17 @@ open class DefaultNetworkService: NetworkService {
         self.errorParser = errorParser
     }
     
-    open func execute<RequestType: APIRequesting>(request: RequestType, handlers: NetworkHandlers<RequestType>?) {
-        handlers?.executingHandler?(true)
+    open func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(request: RequestType,
+                                                                               handlers: NetworkHandlers<RequestType, ResponseType>?) {
+        requestExecutor.execute(request, requestHandler: { (request, error) in
+            handlers?.executingHandler?(request != nil)
+            handlers?.requestHandler?(request, error)
+        }) { (data) in
+            handlers?.executingHandler?(false)
+            DispatchQueue.global().async { [weak self] in
+                guard let `self` = self else { return }
+                self.process(data, request: request, handlers: handlers) }
+        }
     }
     
     open func pauseAllRequests(pause: Bool) {
@@ -44,17 +53,20 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Private -
     
-    private func process<ResponseType: APIResponsing>(response: DataResponse<Any>) -> (ResponseType?, NetworkError?) {
-        var requestResponse: ResponseType?
-        var networkError: NetworkError?
-        switch response.result {
+    private func process<RequestType: APIRequesting, ResponseType: APIResponsing>(_ data: DataResponse<Any>, request: RequestType,
+                                                                                  handlers: NetworkHandlers<RequestType, ResponseType>?) {
+        switch data.result {
         case .success(let value):
-            networkError = errorParser.parseError(from: value, httpURLResponse: response.response)
-            requestResponse = ResponseType(JSON: value)
+            guard let networkError = errorParser.parseError(from: value, httpURLResponse: data.response) else {
+                let requestResponse = ResponseType(JSON: value)
+                DispatchQueue.main.async { handlers?.successHandler?(requestResponse) }
+                return
+            }
+            DispatchQueue.main.async { handlers?.errorHandler?(networkError, request, handlers) }
         case .failure(let error):
-            networkError = NetworkError(error: error, statusCode: response.response?.statusCode)
+            let networkError = (error: error, code: data.response?.statusCode)
+            DispatchQueue.main.async { handlers?.errorHandler?(networkError, request, handlers) }
         }
-        return (requestResponse, networkError)
     }
     
 }

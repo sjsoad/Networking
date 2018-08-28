@@ -21,9 +21,9 @@ public extension RequestExecuting where Self: NSObject {
     func requestExecutingHandler() -> RequestExecutingHandler {
         return { [weak self] (executing) in
             guard executing else {
-                self?.activityView?.showActivity()
+                self?.activityView?.hideActivity()
                 return }
-            self?.activityView?.hideActivity()
+            self?.activityView?.showActivity()
         }
     }
     

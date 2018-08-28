@@ -12,13 +12,13 @@ public protocol RequestExecutor: RequestManaging {
     
     var sessionManager: SessionManager { get }
     init(sessionManager: SessionManager)
-    func execute<RequestType: APIRequesting>(request: RequestType, requestHandler: RequestHandler?, completion: @escaping (DataResponse<Any>) -> ())
+    func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?, completion: @escaping (DataResponse<Any>) -> ())
     
 }
 
 open class DefaultRequestExecutor: RequestExecutor {
 
-    public private(set) var sessionManager: SessionManager
+    public let sessionManager: SessionManager
     
     // MARK: - Public -
     
@@ -26,7 +26,8 @@ open class DefaultRequestExecutor: RequestExecutor {
         self.sessionManager = sessionManager
     }
     
-    open func execute<RequestType: APIRequesting>(request: RequestType, requestHandler: RequestHandler?, completion: @escaping (DataResponse<Any>) -> ()) {
+    open func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?,
+                                                  completion: @escaping (DataResponse<Any>) -> ()) {
         build(from: request, requestHandler: { (alamofireRequest, error) in
             requestHandler?(alamofireRequest, error)
             alamofireRequest?.responseJSON(completionHandler: completion)
@@ -49,7 +50,7 @@ open class DefaultRequestExecutor: RequestExecutor {
     
     private func build<RequestType: APIRequesting>(from request: RequestType, requestHandler: ((UploadRequest?, Error?) -> Void)?) {
         sessionManager.upload(multipartFormData: { [weak self] (multipartFormData) in
-            self?.append(multipartFormData: multipartFormData, from: request)
+            self?.append(multipartFormData, from: request)
         }, to: request.urlString, method: request.HTTPMethod, headers: request.headers) { (result) in
             switch result {
             case .success(let upload, _, _):
@@ -60,7 +61,7 @@ open class DefaultRequestExecutor: RequestExecutor {
         }
     }
     
-    private func append<RequestType: APIRequesting>(multipartFormData: MultipartFormData, from request: RequestType) {
+    private func append<RequestType: APIRequesting>(_ multipartFormData: MultipartFormData, from request: RequestType) {
         request.parameters?.forEach({ (key, value) in
             guard let data = "\(value)".data else { return }
             multipartFormData.append(data, withName: key)

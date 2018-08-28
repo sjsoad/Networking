@@ -11,20 +11,21 @@ import Alamofire
 
 public typealias RequestClass = Request
 public typealias Method = Alamofire.HTTPMethod
+public typealias NetworkError = (error: Error, code: Int?)
 
 public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
-public typealias ErrorHandler<RequestType: APIRequesting> = (_ error: NetworkError, _ failedRequest: RequestType, _ handlers: NetworkHandlers<RequestType>?) -> Void
+public typealias ErrorHandler<RequestType: APIRequesting, ResponseType: APIResponsing> = (_ error: NetworkError, _ failedRequest: RequestType, _ handlers: NetworkHandlers<RequestType, ResponseType>?) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 
-public struct NetworkHandlers<RequestType: APIRequesting> {
+public struct NetworkHandlers<RequestType: APIRequesting, ResponseType: APIResponsing> {
     
-    let successHandler: ((_ response: RequestType.ResponseType) -> Void)?
+    let successHandler: ((_ response: ResponseType) -> Void)?
     let executingHandler: RequestExecutingHandler?
-    let errorHandler: ErrorHandler<RequestType>?
+    let errorHandler: ErrorHandler<RequestType, ResponseType>?
     let requestHandler: RequestHandler?
     
-    public init(successHandler: ((_ response: RequestType.ResponseType) -> Void)? = nil, executingHandler: RequestExecutingHandler? = nil,
-         errorHandler: ErrorHandler<RequestType>? = nil, requestHandler: RequestHandler? = nil) {
+    public init(successHandler: ((_ response: ResponseType) -> Void)? = nil, executingHandler: RequestExecutingHandler? = nil,
+         errorHandler: ErrorHandler<RequestType, ResponseType>? = nil, requestHandler: RequestHandler? = nil) {
         self.successHandler = successHandler
         self.executingHandler = executingHandler
         self.errorHandler = errorHandler

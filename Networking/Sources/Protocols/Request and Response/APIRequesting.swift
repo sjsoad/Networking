@@ -10,8 +10,6 @@ import Foundation
 
 public protocol APIRequesting {
     
-    associatedtype ResponseType: APIResponsing
-    
     var HTTPMethod: Method { get }
     var parameters: [String: Any]? { get }
     var headers: [String: String]? { get }
