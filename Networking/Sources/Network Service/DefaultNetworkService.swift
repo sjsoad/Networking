@@ -1,5 +1,5 @@
 //
-//  NetworkService.swift
+//  DefaultNetworkService.swift
 //  Networking
 //
 //  Created by Sergey on 22.05.2018.
@@ -8,16 +8,10 @@
 
 import Alamofire
 
-public protocol NetworkService: RequestManaging {
-    
-    init(requestExecutor: RequestExecutor, errorParser: ErrorParsing)
-    func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(request: RequestType, handlers: NetworkHandlers<RequestType, ResponseType>?)
-}
-
 open class DefaultNetworkService: NetworkService {
 
-    private var requestExecutor: RequestExecutor
-    private var errorParser: ErrorParsing
+    private let requestExecutor: RequestExecutor
+    private let errorParser: ErrorParsing
     
     // MARK: - Public -
     
@@ -26,7 +20,7 @@ open class DefaultNetworkService: NetworkService {
         self.errorParser = errorParser
     }
     
-    open func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(request: RequestType,
+    public func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(request: RequestType,
                                                                                handlers: NetworkHandlers<RequestType, ResponseType>?) {
         requestExecutor.execute(request, requestHandler: { (request, error) in
             handlers?.executingHandler?(request != nil)
@@ -39,15 +33,17 @@ open class DefaultNetworkService: NetworkService {
         }
     }
     
-    open func pauseAllRequests(pause: Bool) {
+    // MARK: - RequestManaging -
+    
+    public func pauseAllRequests(pause: Bool) {
         requestExecutor.pauseAllRequests(pause: pause)
     }
     
-    open func cancelAllRequests() {
+    public func cancelAllRequests() {
         requestExecutor.cancelAllRequests()
     }
     
-    open func cancel(request: RequestClass) {
+    public func cancel(request: RequestClass) {
         requestExecutor.cancel(request: request)
     }
     

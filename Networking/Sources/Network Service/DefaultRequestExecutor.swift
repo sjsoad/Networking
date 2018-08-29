@@ -1,5 +1,5 @@
 //
-//  RequestExecutor.swift
+//  DefaultRequestExecutor.swift
 //  Networking
 //
 //  Created by Sergey on 22.05.2018.
@@ -8,17 +8,9 @@
 
 import Alamofire
 
-public protocol RequestExecutor: RequestManaging {
-    
-    var sessionManager: SessionManager { get }
-    init(sessionManager: SessionManager)
-    func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?, completion: @escaping (DataResponse<Any>) -> ())
-    
-}
-
 open class DefaultRequestExecutor: RequestExecutor {
 
-    public let sessionManager: SessionManager
+    private let sessionManager: SessionManager
     
     // MARK: - Public -
     
@@ -26,7 +18,7 @@ open class DefaultRequestExecutor: RequestExecutor {
         self.sessionManager = sessionManager
     }
     
-    open func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?,
+    public func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?,
                                                   completion: @escaping (DataResponse<Any>) -> ()) {
         build(from: request, requestHandler: { (alamofireRequest, error) in
             requestHandler?(alamofireRequest, error)
@@ -34,15 +26,17 @@ open class DefaultRequestExecutor: RequestExecutor {
         })
     }
     
-    open func pauseAllRequests(pause: Bool) {
+    // MARK: - RequestManaging -
+    
+    public func pauseAllRequests(pause: Bool) {
         sessionManager.session.delegateQueue.isSuspended = pause
     }
     
-    open func cancelAllRequests() {
+    public func cancelAllRequests() {
         sessionManager.session.invalidateAndCancel()
     }
     
-    open func cancel(request: RequestClass) {
+    public func cancel(request: RequestClass) {
         request.cancel()
     }
     
