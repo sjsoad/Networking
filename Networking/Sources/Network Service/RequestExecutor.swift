@@ -57,7 +57,12 @@ open class DefaultRequestExecutor: RequestExecutor {
     
     // MARK: - Private -
     
-    private func build<RequestType: APIRequesting>(from request: RequestType, requestHandler: ((UploadRequest?, Error?) -> Void)?) {
+    private func build<RequestType: APIRequesting>(from request: RequestType, requestHandler: ((DataRequest?, Error?) -> Void)?) {
+        guard request.multipartData != nil else {
+            let request =  sessionManager.request(request.urlString, method: request.HTTPMethod, parameters: request.parameters,
+                                                  encoding: JSONEncoding.default, headers: request.headers)
+            requestHandler?(request, nil)
+            return }
         sessionManager.upload(multipartFormData: { [weak self] (multipartFormData) in
             self?.append(multipartFormData: multipartFormData, with: request)
         }, to: request.urlString, method: request.HTTPMethod, headers: request.headers) { (result) in
