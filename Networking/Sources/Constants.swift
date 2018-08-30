@@ -14,18 +14,23 @@ public typealias Method = Alamofire.HTTPMethod
 public typealias NetworkError = (error: Error, code: Int?)
 
 public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
-public typealias ErrorHandler<RequestType: APIRequesting, ResponseType: APIResponsing> = (_ error: NetworkError, _ failedRequest: RequestType, _ handlers: NetworkHandlers<RequestType, ResponseType>?) -> Void
+public typealias ErrorHandler = (_ error: NetworkError) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 
-public struct NetworkHandlers<RequestType: APIRequesting, ResponseType: APIResponsing> {
+
+public enum StatusCode: Int {
+    case unauthorized = 401
+}
+
+public struct NetworkHandlers<ResponseType: APIResponsing> {
     
     let successHandler: ((_ response: ResponseType) -> Void)?
     let executingHandler: RequestExecutingHandler?
-    let errorHandler: ErrorHandler<RequestType, ResponseType>?
+    let errorHandler: ErrorHandler?
     let requestHandler: RequestHandler?
     
     public init(successHandler: ((_ response: ResponseType) -> Void)? = nil, executingHandler: RequestExecutingHandler? = nil,
-         errorHandler: ErrorHandler<RequestType, ResponseType>? = nil, requestHandler: RequestHandler? = nil) {
+                errorHandler: ErrorHandler? = nil, requestHandler: RequestHandler? = nil) {
         self.successHandler = successHandler
         self.executingHandler = executingHandler
         self.errorHandler = errorHandler

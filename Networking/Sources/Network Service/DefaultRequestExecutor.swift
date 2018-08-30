@@ -28,7 +28,7 @@ open class DefaultRequestExecutor: RequestExecutor {
     
     // MARK: - RequestManaging -
     
-    public func pauseAllRequests(pause: Bool) {
+    public func pauseAllRequests(_ pause: Bool) {
         sessionManager.session.delegateQueue.isSuspended = pause
     }
     
@@ -36,7 +36,7 @@ open class DefaultRequestExecutor: RequestExecutor {
         sessionManager.session.invalidateAndCancel()
     }
     
-    public func cancel(request: RequestClass) {
+    public func cancel(_ request: RequestClass) {
         request.cancel()
     }
     

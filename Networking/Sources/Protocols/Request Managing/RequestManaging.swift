@@ -10,8 +10,8 @@ import Foundation
 
 public protocol RequestManaging {
     
-    func pauseAllRequests(pause: Bool)
+    func pauseAllRequests(_ pause: Bool)
     func cancelAllRequests()
-    func cancel(request: RequestClass)
+    func cancel(_ request: RequestClass)
     
 }

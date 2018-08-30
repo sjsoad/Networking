@@ -1,5 +1,5 @@
 //
-//  AuthentificatedAPIRequesting.swift
+//  Authenticatable.swift
 //  Networking
 //
 //  Created by Sergey on 29.05.2018.
@@ -8,17 +8,17 @@
 
 import Foundation
 
-public protocol AuthentificatedAPIRequesting: class, APIRequesting {
+public protocol Authenticatable {
     
     var accessToken: String? { get set }
     
-    func update(accessToken: String?)
+    mutating func update(accessToken: String?)
     
 }
 
-public extension AuthentificatedAPIRequesting {
+public extension Authenticatable {
 
-    func update(accessToken: String?) {
+    mutating func update(accessToken: String?) {
         self.accessToken = accessToken
     }
     
