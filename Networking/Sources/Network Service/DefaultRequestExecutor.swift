@@ -19,18 +19,19 @@ open class DefaultRequestExecutor: RequestExecutor {
     }
     
     public func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?,
-                                                  completion: @escaping (DataResponse<Any>) -> ()) {
-        build(from: request, requestHandler: { (alamofireRequest, error) in
-            requestHandler?(alamofireRequest, error)
-            alamofireRequest?.responseJSON(completionHandler: completion)
-        })
-//        sessionManager.download(<#T##url: URLConvertible##URLConvertible#>, method: <#T##HTTPMethod#>, parameters: <#T##Parameters?#>, encoding: <#T##ParameterEncoding#>, headers: <#T##HTTPHeaders?#>, to: <#T##DownloadRequest.DownloadFileDestination?##DownloadRequest.DownloadFileDestination?##(URL, HTTPURLResponse) -> (destinationURL: URL, options: DownloadRequest.DownloadOptions)#>)
-//        sessionManager.download(resumingWith: <#T##Data#>, to: <#T##DownloadRequest.DownloadFileDestination?##DownloadRequest.DownloadFileDestination?##(URL, HTTPURLResponse) -> (destinationURL: URL, options: DownloadRequest.DownloadOptions)#>)
-//        sessionManager.upload(<#T##data: Data##Data#>, to: <#T##URLConvertible#>, method: <#T##HTTPMethod#>, headers: <#T##HTTPHeaders?#>)
-//        sessionManager.upload(<#T##fileURL: URL##URL#>, to: <#T##URLConvertible#>, method: <#T##HTTPMethod#>, headers: <#T##HTTPHeaders?#>)
-//        sessionManager.upload(<#T##stream: InputStream##InputStream#>, to: <#T##URLConvertible#>, method: <#T##HTTPMethod#>, headers: <#T##HTTPHeaders?#>)
-//        sessionManager.upload(multipartFormData: <#T##(MultipartFormData) -> Void#>, to: <#T##URLConvertible#>, encodingCompletion: <#T##((SessionManager.MultipartFormDataEncodingResult) -> Void)?##((SessionManager.MultipartFormDataEncodingResult) -> Void)?##(SessionManager.MultipartFormDataEncodingResult) -> Void#>)
-//        sessionManager.request(<#T##url: URLConvertible##URLConvertible#>, method: <#T##HTTPMethod#>, parameters: <#T##Parameters?#>, encoding: <#T##ParameterEncoding#>, headers: <#T##HTTPHeaders?#>)
+                                                    completion: @escaping (DataResponse<Any>) -> ()) {
+//        switch request.requestType {
+//        case .simple, .uploadData, .uploadURL, .uploadStream:
+//            dataRequest(from: request, requestHandler, with: completion)
+//        case .uploadMultipart: break
+//        case .downloadResuming(let data, let destination):
+//            let request = sessionManager.download(resumingWith: data, to: destination)
+//            requestHandler?(request, nil)
+//        case .downloadTo(let parameters, let destination):
+//            let request = sessionManager.download(request.urlString, method: request.HTTPMethod, parameters: parameters, headers: request.headers,
+//                                                  to: destination)
+//            requestHandler?(request, nil)
+//        }
     }
     
     // MARK: - RequestManaging -
@@ -49,27 +50,49 @@ open class DefaultRequestExecutor: RequestExecutor {
     
     // MARK: - Private -
     
-    private func build<RequestType: APIRequesting>(from request: RequestType, requestHandler: ((UploadRequest?, Error?) -> Void)?) {
-        sessionManager.upload(multipartFormData: { [weak self] (multipartFormData) in
-            self?.append(multipartFormData, from: request)
-        }, to: request.urlString, method: request.HTTPMethod, headers: request.headers) { (result) in
-            switch result {
-            case .success(let upload, _, _):
-                requestHandler?(upload, nil)
-            case .failure(let error):
-                requestHandler?(nil, error)
-            }
+    private func dataRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                         with completion: @escaping DataResponseHandler) {
+        var dataRequest: DataRequest? = nil
+        switch request.requestType {
+        case .simple(let parameters):
+            dataRequest = sessionManager.request(request.urlString, method: request.HTTPMethod, parameters: parameters, headers: request.headers)
+        case .uploadData(let data):
+            dataRequest = sessionManager.upload(data, to: request.urlString, method: request.HTTPMethod, headers: request.headers)
+        case .uploadURL(let url):
+            dataRequest = sessionManager.upload(url, to: request.urlString, method: request.HTTPMethod, headers: request.headers)
+        case .uploadStream(let stream):
+            dataRequest = sessionManager.upload(stream, to: request.urlString, method: request.HTTPMethod, headers: request.headers)
+        default:
+            print("\(request.requestType) is ignored. Not data request")
         }
+        dataRequest?.responseJSON(completionHandler: completion)
+        requestHandler?(dataRequest, nil)
     }
     
-    private func append<RequestType: APIRequesting>(_ multipartFormData: MultipartFormData, from request: RequestType) {
-        request.parameters?.forEach({ (key, value) in
-            guard let data = "\(value)".data else { return }
-            multipartFormData.append(data, withName: key)
-        })
-        guard let multipartData = request.multipartData, let multipartKey = request.multipartKey, let fileName = request.fileName,
-            let mimeType = request.mimeType else { return }
-        multipartFormData.append(multipartData, withName: multipartKey, fileName: fileName, mimeType: mimeType)
+    private func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                             with completion: @escaping DownloadResponseHandler) {
+        var downloadRequest: DownloadRequest? = nil
+        switch request.requestType {
+        case .downloadResuming(let data, let destination):
+            downloadRequest = sessionManager.download(resumingWith: data, to: destination)
+        case .downloadTo(let parameters, let destination):
+            downloadRequest = sessionManager.download(request.urlString, method: request.HTTPMethod, parameters: parameters, headers: request.headers,
+                                                  to: destination)
+        default:
+            print("\(request.requestType) is ignored. Not download request")
+        }
+        downloadRequest?.responseJSON(completionHandler: completion)
+        requestHandler?(downloadRequest, nil)
     }
+    
+//    private func append<RequestType: APIRequesting>(_ multipartFormData: MultipartFormData, from request: RequestType) {
+//        request.parameters?.forEach({ (key, value) in
+//            guard let data = "\(value)".data else { return }
+//            multipartFormData.append(data, withName: key)
+//        })
+//        guard let multipartData = request.multipartData, let multipartKey = request.multipartKey, let fileName = request.fileName,
+//            let mimeType = request.mimeType else { return }
+//        multipartFormData.append(multipartData, withName: multipartKey, fileName: fileName, mimeType: mimeType)
+//    }
     
 }

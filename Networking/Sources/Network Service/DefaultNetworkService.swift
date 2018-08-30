@@ -74,14 +74,14 @@ open class DefaultNetworkService: NetworkService {
             DispatchQueue.main.async { handlers?.errorHandler?(error) }
             return }
         pauseAllRequests(true)
-        reAuthorizer.reAuthAndRepeat(request) { [weak self] (reAuthorizedRequest) in
-            guard let `self` = self else { return }
-            self.pauseAllRequests(false)
-            guard let reAuthorizedRequest = reAuthorizedRequest else {
-                DispatchQueue.main.async { handlers?.errorHandler?(error) }
-                return }
-            self.execute(reAuthorizedRequest, with: handlers)
-        }
+//        reAuthorizer.reAuthAndRepeat(request) { [weak self] (reAuthorizedRequest) in
+//            guard let `self` = self else { return }
+//            self.pauseAllRequests(false)
+//            guard let reAuthorizedRequest = reAuthorizedRequest else {
+//                DispatchQueue.main.async { handlers?.errorHandler?(error) }
+//                return }
+//            self.execute(reAuthorizedRequest, with: handlers)
+//        }
     }
     
 }
