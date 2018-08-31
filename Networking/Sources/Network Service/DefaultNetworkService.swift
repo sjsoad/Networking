@@ -24,42 +24,29 @@ open class DefaultNetworkService: NetworkService {
     
     public func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(_ request: RequestType,
                                                                                  with handlers: NetworkHandlers<ResponseType>?) {
-        let requestHandler: RequestHandler = { (request, error) in
-            handlers?.executingHandler?(request != nil)
-            handlers?.requestHandler?(request, error)
-        }
         switch request.requestType {
-         case .simple, .uploadData, .uploadURL, .uploadStream:
-            requestExecutor.dataRequest(from: request, requestHandler) { (data) in
-                handlers?.executingHandler?(false)
+        case .simple, .uploadData, .uploadURL, .uploadStream:
+            requestExecutor.dataRequest(from: request, requestHandler(with: handlers)) { (data) in
                 DispatchQueue.global().async { [weak self] in
                     guard let `self` = self else { return }
-                    self.parse(data, from: request, with: handlers)
+                    self.parse(data.result, response: data.response, from: request, with: handlers)
                 }
             }
         case .downloadResuming, .downloadTo:
-            requestExecutor.downloadRequest(from: request, requestHandler) { (downloadData) in
-                handlers?.executingHandler?(false)
-            }
-        case .uploadMultipart:
-            requestExecutor.multipartRequest(from: request, requestHandler) { (data) in
-                handlers?.executingHandler?(false)
+            requestExecutor.downloadRequest(from: request, requestHandler(with: handlers)) { (downloadData) in
                 DispatchQueue.global().async { [weak self] in
                     guard let `self` = self else { return }
-                    self.parse(data, from: request, with: handlers)
+                    self.parse(downloadData.result, response: downloadData.response, from: request, with: handlers)
+                }
+            }
+        case .uploadMultipart:
+            requestExecutor.multipartRequest(from: request, requestHandler(with: handlers)) { (data) in
+                DispatchQueue.global().async { [weak self] in
+                    guard let `self` = self else { return }
+                    self.parse(data.result, response: data.response, from: request, with: handlers)
                 }
             }
         }
-//        requestExecutor.execute(request, requestHandler: { (request, error) in
-//            handlers?.executingHandler?(request != nil)
-//            handlers?.requestHandler?(request, error)
-//        }) { (data) in
-//            handlers?.executingHandler?(false)
-//            DispatchQueue.global().async { [weak self] in
-//                guard let `self` = self else { return }
-//                self.parse(data, from: request, with: handlers)
-//            }
-//        }
     }
     
     // MARK: - RequestManag ing -
@@ -78,18 +65,29 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Private -
     
-    private func parse<RequestType: APIRequesting, ResponseType: APIResponsing>(_ data: DataResponse<Any>, from request: RequestType,
+    private func requestHandler<ResponseType: APIResponsing>(with handlers: NetworkHandlers<ResponseType>?) -> RequestHandler {
+        return { (request, error) in
+            DispatchQueue.main.async {
+                handlers?.executingHandler?(request != nil)
+                handlers?.requestHandler?(request, error)
+            }
+        }
+    }
+    
+    private func parse<RequestType: APIRequesting, ResponseType: APIResponsing>(_ result: Result<Any>, response: HTTPURLResponse?,
+                                                                                from request: RequestType,
                                                                                 with handlers: NetworkHandlers<ResponseType>?) {
-        switch data.result {
+        DispatchQueue.main.async { handlers?.executingHandler?(false) }
+        switch result {
         case .success(let value):
-            guard let networkError = errorParser.parseError(from: value, httpURLResponse: data.response) else {
+            guard let networkError = errorParser.parseError(from: value, httpURLResponse: response) else {
                 let requestResponse = ResponseType(with: value)
                 DispatchQueue.main.async { handlers?.successHandler?(requestResponse) }
                 return
             }
             process(networkError, from: request, with: handlers)
         case .failure(let error):
-            let networkError = (error: error, code: data.response?.statusCode)
+            let networkError = (error: error, code: response?.statusCode)
             process(networkError, from: request, with: handlers)
         }
     }
@@ -100,14 +98,14 @@ open class DefaultNetworkService: NetworkService {
             DispatchQueue.main.async { handlers?.errorHandler?(error) }
             return }
         pauseAllRequests(true)
-//        reAuthorizer.reAuthAndRepeat(request) { [weak self] (reAuthorizedRequest) in
-//            guard let `self` = self else { return }
-//            self.pauseAllRequests(false)
-//            guard let reAuthorizedRequest = reAuthorizedRequest else {
-//                DispatchQueue.main.async { handlers?.errorHandler?(error) }
-//                return }
-//            self.execute(reAuthorizedRequest, with: handlers)
-//        }
+        reAuthorizer.reAuthAndRepeat(request) { [weak self] (reAuthorizedRequest) in
+            guard let `self` = self else { return }
+            self.pauseAllRequests(false)
+            guard let reAuthorizedRequest = reAuthorizedRequest else {
+                DispatchQueue.main.async { handlers?.errorHandler?(error) }
+                return }
+            self.execute(reAuthorizedRequest, with: handlers)
+        }
     }
     
 }

@@ -9,7 +9,7 @@
 import Alamofire
 
 open class DefaultRequestExecutor: RequestExecutor {
-
+    
     private let sessionManager: SessionManager
     
     // MARK: - Public -
@@ -18,12 +18,8 @@ open class DefaultRequestExecutor: RequestExecutor {
         self.sessionManager = sessionManager
     }
     
-    public func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?,
-                                                    completion: @escaping (DataResponse<Any>) -> ()) {
-    }
-    
-    func dataRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
-                                                 with completion: @escaping DataResponseHandler) {
+    public func dataRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                        with completion: @escaping DataResponseHandler) {
         var dataRequest: DataRequest? = nil
         switch request.requestType {
         case .simple(let parameters):
@@ -41,8 +37,8 @@ open class DefaultRequestExecutor: RequestExecutor {
         requestHandler?(dataRequest, nil)
     }
     
-    func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
-                                                     with completion: @escaping DownloadResponseHandler) {
+    public func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                            with completion: @escaping DownloadResponseHandler) {
         var downloadRequest: DownloadRequest? = nil
         switch request.requestType {
         case .downloadResuming(let data, let destination):
@@ -57,8 +53,8 @@ open class DefaultRequestExecutor: RequestExecutor {
         requestHandler?(downloadRequest, nil)
     }
     
-    func multipartRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
-                                                   with completion: @escaping DataResponseHandler) {
+    public func multipartRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                             with completion: @escaping DataResponseHandler) {
         switch request.requestType {
         case .uploadMultipart(let parameters, let multipartParameters):
             sessionManager.upload(multipartFormData: { (multipartFormData) in
