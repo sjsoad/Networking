@@ -8,13 +8,13 @@
 
 import Alamofire
 
-open class DefaultRequestExecutor: RequestExecutor {
+public struct DefaultRequestExecutor: RequestExecutor {
     
     private let sessionManager: SessionManager
     
     // MARK: - Public -
     
-    public required init(sessionManager: SessionManager = SessionManager.default) {
+    public init(sessionManager: SessionManager = SessionManager.default) {
         self.sessionManager = sessionManager
     }
     

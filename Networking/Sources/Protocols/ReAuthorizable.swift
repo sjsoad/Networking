@@ -10,7 +10,7 @@ import Foundation
 public protocol ReAuthorizable {
     
     func shouldReAuthAndRepeat(after error: NetworkError) -> Bool
-    func reAuthAndRepeat<RequestType: APIRequesting>(_ request: RequestType, completion: (RequestType?) -> Void)
+    func reAuthAndRepeat<RequestType: APIRequesting>(_ request: RequestType, completion: @escaping (RequestType?) -> Void)
     
 }
 
