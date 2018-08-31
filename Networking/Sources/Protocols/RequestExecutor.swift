@@ -10,6 +10,11 @@ import Alamofire
 public protocol RequestExecutor: RequestManaging {
     
     init(sessionManager: SessionManager)
-    func execute<RequestType: APIRequesting>(_ request: RequestType, requestHandler: RequestHandler?, completion: @escaping (DataResponse<Any>) -> ())
+    func dataRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                 with completion: @escaping DataResponseHandler)
+    func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                     with completion: @escaping DownloadResponseHandler)
+    func multipartRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
+                                                      with completion: @escaping DataResponseHandler)
     
 }

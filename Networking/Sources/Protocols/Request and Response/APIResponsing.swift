@@ -10,6 +10,6 @@ import Foundation
 
 public protocol APIResponsing {
 
-    init(JSON: Any)
+    init(with value: Any)
 
 }

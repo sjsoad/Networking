@@ -29,7 +29,7 @@ public enum RequestType {
     case uploadData(Data)
     case uploadURL(URL)
     case uploadStream(InputStream)
-    case uploadMultipart
+    case uploadMultipart([String: Any]?, MultipartDataParameters)
     case downloadResuming(Data, DownloadFileDestination)
     case downloadTo([String: Any]?, DownloadFileDestination)
 }
