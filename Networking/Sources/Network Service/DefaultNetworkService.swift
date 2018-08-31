@@ -29,13 +29,11 @@ open class DefaultNetworkService: NetworkService {
             requestExecutor.dataRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
                 guard let `self` = self else { return }
                 self.parse(data.result, response: data.response, from: request, with: handlers)
-                
             }
         case .downloadResuming, .downloadTo:
             requestExecutor.downloadRequest(from: request, requestHandler(with: handlers)) { [weak self] (downloadData) in
                 guard let `self` = self else { return }
                 self.parse(downloadData.result, response: downloadData.response, from: request, with: handlers)
-                
             }
         case .uploadMultipart:
             requestExecutor.multipartRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
