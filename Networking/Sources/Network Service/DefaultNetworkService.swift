@@ -16,7 +16,8 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Public -
     
-    public required init(requestExecutor: RequestExecutor, reAuthorizer: ReAuthorizable? = nil, errorParser: ErrorParsable) {
+    public required init(requestExecutor: RequestExecutor = DefaultRequestExecutor(), reAuthorizer: ReAuthorizable? = nil,
+                         errorParser: ErrorParsable) {
         self.requestExecutor = requestExecutor
         self.reAuthorizer = reAuthorizer
         self.errorParser = errorParser
