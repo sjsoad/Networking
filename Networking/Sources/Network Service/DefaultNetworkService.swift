@@ -26,25 +26,21 @@ open class DefaultNetworkService: NetworkService {
                                                                                  with handlers: NetworkHandlers<ResponseType>?) {
         switch request.requestType {
         case .simple, .uploadData, .uploadURL, .uploadStream:
-            requestExecutor.dataRequest(from: request, requestHandler(with: handlers)) { (data) in
-                DispatchQueue.global().async { [weak self] in
-                    guard let `self` = self else { return }
-                    self.parse(data.result, response: data.response, from: request, with: handlers)
-                }
+            requestExecutor.dataRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
+                guard let `self` = self else { return }
+                self.parse(data.result, response: data.response, from: request, with: handlers)
+                
             }
         case .downloadResuming, .downloadTo:
-            requestExecutor.downloadRequest(from: request, requestHandler(with: handlers)) { (downloadData) in
-                DispatchQueue.global().async { [weak self] in
-                    guard let `self` = self else { return }
-                    self.parse(downloadData.result, response: downloadData.response, from: request, with: handlers)
-                }
+            requestExecutor.downloadRequest(from: request, requestHandler(with: handlers)) { [weak self] (downloadData) in
+                guard let `self` = self else { return }
+                self.parse(downloadData.result, response: downloadData.response, from: request, with: handlers)
+                
             }
         case .uploadMultipart:
-            requestExecutor.multipartRequest(from: request, requestHandler(with: handlers)) { (data) in
-                DispatchQueue.global().async { [weak self] in
-                    guard let `self` = self else { return }
-                    self.parse(data.result, response: data.response, from: request, with: handlers)
-                }
+            requestExecutor.multipartRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
+                guard let `self` = self else { return }
+                self.parse(data.result, response: data.response, from: request, with: handlers)
             }
         }
     }
@@ -78,17 +74,20 @@ open class DefaultNetworkService: NetworkService {
                                                                                 from request: RequestType,
                                                                                 with handlers: NetworkHandlers<ResponseType>?) {
         DispatchQueue.main.async { handlers?.executingHandler?(false) }
-        switch result {
-        case .success(let value):
-            guard let networkError = errorParser.parseError(from: value, httpURLResponse: response) else {
-                let requestResponse = ResponseType(with: value)
-                DispatchQueue.main.async { handlers?.successHandler?(requestResponse) }
-                return
+        DispatchQueue.global().async { [weak self] in
+            guard let `self` = self else { return }
+            switch result {
+            case .success(let value):
+                guard let networkError = self.errorParser.parseError(from: value, httpURLResponse: response) else {
+                    let requestResponse = ResponseType(with: value)
+                    DispatchQueue.main.async { handlers?.successHandler?(requestResponse) }
+                    return
+                }
+                self.process(networkError, from: request, with: handlers)
+            case .failure(let error):
+                let networkError = (error: error, code: response?.statusCode)
+                self.process(networkError, from: request, with: handlers)
             }
-            process(networkError, from: request, with: handlers)
-        case .failure(let error):
-            let networkError = (error: error, code: response?.statusCode)
-            process(networkError, from: request, with: handlers)
         }
     }
     
