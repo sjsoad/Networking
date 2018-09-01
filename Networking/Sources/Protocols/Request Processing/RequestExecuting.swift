@@ -9,14 +9,14 @@
 import Foundation
 import SKActivityViewable
 
-public protocol RequestExecuting {
+public protocol RequestExecuting where Self: NSObject {
     
     var activityView: ActivityViewable? { get }
     func requestExecutingHandler() -> RequestExecutingHandler
     
 }
 
-public extension RequestExecuting where Self: NSObject {
+public extension RequestExecuting {
     
     func requestExecutingHandler() -> RequestExecutingHandler {
         return { [weak self] (executing) in

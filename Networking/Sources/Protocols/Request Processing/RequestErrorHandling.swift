@@ -9,14 +9,14 @@
 import Foundation
 import SKAlertViewable
 
-public protocol RequestErrorHandling: AlertViewable {
+public protocol RequestErrorHandling: AlertViewable where Self: NSObject {
     
     var alertView: AlertViewable? { get }
     func requestErrorHandler() -> ErrorHandler
     
 }
 
-public extension RequestErrorHandling where Self: NSObject {
+public extension RequestErrorHandling {
     
     func requestErrorHandler() -> ErrorHandler {
         return { [weak self] (networkError) in
