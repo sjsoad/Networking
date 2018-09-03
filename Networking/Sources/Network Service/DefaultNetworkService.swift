@@ -44,7 +44,7 @@ open class DefaultNetworkService: NetworkService {
         }
     }
     
-    // MARK: - RequestManag ing -
+    // MARK: - RequestManaging -
     
     public func pauseAllRequests(_ pause: Bool) {
         requestExecutor.pauseAllRequests(pause)

@@ -10,6 +10,6 @@ import Foundation
 
 public protocol ErrorParsable {
     
-    func parseError(from JSON: Any, httpURLResponse: HTTPURLResponse?) -> NetworkError?
+    func parseError(from value: Any, httpURLResponse: HTTPURLResponse?) -> NetworkError?
     
 }

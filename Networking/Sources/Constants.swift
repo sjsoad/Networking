@@ -25,7 +25,7 @@ public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
 
 public enum RequestType {
-    case simple([String: Any]?)
+    case simple([String: Any]?) // regular API request
     case uploadData(Data)
     case uploadURL(URL)
     case uploadStream(InputStream)

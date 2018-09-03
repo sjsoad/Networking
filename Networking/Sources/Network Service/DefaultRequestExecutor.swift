@@ -23,7 +23,8 @@ public struct DefaultRequestExecutor: RequestExecutor {
         var dataRequest: DataRequest? = nil
         switch request.requestType {
         case .simple(let parameters):
-            dataRequest = sessionManager.request(request.urlString, method: request.HTTPMethod, parameters: parameters, headers: request.headers)
+            dataRequest = sessionManager.request(request.urlString, method: request.HTTPMethod, parameters: parameters,
+                                                 encoding: JSONEncoding.default, headers: request.headers)
         case .uploadData(let data):
             dataRequest = sessionManager.upload(data, to: request.urlString, method: request.HTTPMethod, headers: request.headers)
         case .uploadURL(let url):
@@ -44,8 +45,8 @@ public struct DefaultRequestExecutor: RequestExecutor {
         case .downloadResuming(let data, let destination):
             downloadRequest = sessionManager.download(resumingWith: data, to: destination)
         case .downloadTo(let parameters, let destination):
-            downloadRequest = sessionManager.download(request.urlString, method: request.HTTPMethod, parameters: parameters, headers: request.headers,
-                                                      to: destination)
+            downloadRequest = sessionManager.download(request.urlString, method: request.HTTPMethod, parameters: parameters,
+                                                      encoding: JSONEncoding.default, headers: request.headers, to: destination)
         default:
             print("\(request.requestType) is ignored. Not download request")
         }

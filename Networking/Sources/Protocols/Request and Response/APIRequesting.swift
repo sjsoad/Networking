@@ -19,7 +19,6 @@ public protocol APIRequesting {
 
 public extension APIRequesting {
     
-    var requestType: RequestType { return .simple(nil) }
     var HTTPMethod: Method { return .get }
     var headers: [String: String]? { return nil }
     
