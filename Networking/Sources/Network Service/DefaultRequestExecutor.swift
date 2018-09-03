@@ -20,7 +20,7 @@ public struct DefaultRequestExecutor: RequestExecutor {
     
     public func dataRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
                                                         with completion: @escaping DataResponseHandler) {
-        var dataRequest: DataRequest? = nil
+        var dataRequest: DataRequest?
         switch request.requestType {
         case .simple(let parameters):
             dataRequest = sessionManager.request(request.urlString, method: request.HTTPMethod, parameters: parameters,
@@ -40,7 +40,7 @@ public struct DefaultRequestExecutor: RequestExecutor {
     
     public func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
                                                             with completion: @escaping DownloadResponseHandler) {
-        var downloadRequest: DownloadRequest? = nil
+        var downloadRequest: DownloadRequest?
         switch request.requestType {
         case .downloadResuming(let data, let destination):
             downloadRequest = sessionManager.download(resumingWith: data, to: destination)
@@ -61,7 +61,7 @@ public struct DefaultRequestExecutor: RequestExecutor {
             sessionManager.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(with: parameters)
                 multipartFormData.appen(with: multipartParameters)
-            }, to: request.urlString, method: request.HTTPMethod, headers: request.headers) { (result) in
+            }, to: request.urlString, method: request.HTTPMethod, headers: request.headers, encodingCompletion: { (result) in
                 switch result {
                 case .success(let upload, _, _):
                     requestHandler?(upload, nil)
@@ -69,7 +69,7 @@ public struct DefaultRequestExecutor: RequestExecutor {
                 case .failure(let error):
                     requestHandler?(nil, error)
                 }
-            }
+            })
         default:
             print("\(request.requestType) is ignored. Not multipart request")
         }
