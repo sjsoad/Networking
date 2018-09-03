@@ -1,5 +1,5 @@
 //
-//  RequestErrorHandlerProtocol.swift
+//  RequestErrorHandling.swift
 //  GeoTouch
 //
 //  Created by Sergey on 14.03.17.
@@ -9,19 +9,18 @@
 import Foundation
 import SKAlertViewable
 
-public protocol RequestErrorHandling: AlertViewable {
+public protocol RequestErrorHandling: AlertViewable where Self: NSObject {
     
     var alertView: AlertViewable? { get }
-    func requestErrorHandler<RequestType: APIRequesting>() -> ErrorHandler<RequestType>
+    func requestErrorHandler() -> ErrorHandler
     
 }
 
-public extension RequestErrorHandling where Self: NSObject {
+public extension RequestErrorHandling {
     
-    func requestErrorHandler<RequestType: APIRequesting>() -> ErrorHandler<RequestType> {
-        return { [weak self] (networkError, failedRequest, handlers)  in
-            guard let view = self?.alertView else { return }
-            view.show(message: networkError.error.localizedDescription, for: .error)
+    func requestErrorHandler() -> ErrorHandler {
+        return { [weak self] (networkError) in
+            self?.alertView?.show(message: networkError.error.localizedDescription, for: .error)
         }
     }
     

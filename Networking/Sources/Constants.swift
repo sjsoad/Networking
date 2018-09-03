@@ -9,29 +9,31 @@
 import Foundation
 import Alamofire
 
-public typealias RequestClass = Request
-public typealias Method = Alamofire.HTTPMethod
+// MARK: - Alamofire -
 
-public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
-public typealias ErrorHandler<RequestType: APIRequesting> = (_ error: NetworkError, _ failedRequest: RequestType, _ handlers: NetworkHandlers<RequestType>?) -> Void
+public typealias RequestClass = Request // Alamofire
+public typealias Method = Alamofire.HTTPMethod // Alamofire
+public typealias DataResponseHandler = (DataResponse<Any>) -> Void // Alamofire
+public typealias DownloadResponseHandler = (DownloadResponse<Any>) -> Void // Alamofire
+public typealias DownloadFileDestination = DownloadRequest.DownloadFileDestination // Alamofire
+
+// MARK: - Custom -
+
+public typealias NetworkError = (error: Error, code: Int?)
+public typealias ErrorHandler = (_ error: NetworkError) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
+public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
 
-public enum NetworkErrorCode: Int {
-    case unauthorized = 401
+public enum RequestType {
+    case simple([String: Any]?) // regular API request
+    case uploadData(Data)
+    case uploadURL(URL)
+    case uploadStream(InputStream)
+    case uploadMultipart([String: Any]?, MultipartDataParameters)
+    case downloadResuming(Data, DownloadFileDestination)
+    case downloadTo([String: Any]?, DownloadFileDestination)
 }
 
-public struct NetworkHandlers<RequestType: APIRequesting> {
-    
-    var successHandler: ((_ response: RequestType.ResponseType) -> Void)?
-    var executingHandler: RequestExecutingHandler?
-    var errorHandler: ErrorHandler<RequestType>?
-    var requestHandler: RequestHandler?
-    
-    public init(successHandler: ((_ response: RequestType.ResponseType) -> Void)?, executingHandler: RequestExecutingHandler?,
-         errorHandler: ErrorHandler<RequestType>?, requestHandler: RequestHandler?) {
-        self.successHandler = successHandler
-        self.executingHandler = executingHandler
-        self.errorHandler = errorHandler
-        self.requestHandler = requestHandler
-    }
+public enum StatusCode: Int {
+    case unauthorized = 401
 }

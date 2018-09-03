@@ -6,8 +6,10 @@
 //  Copyright © 2016 Sergey Kostyan. All rights reserved.
 //
 
+import Foundation
+
 public protocol APIResponsing {
 
-    init (JSON: AnyObject)
+    init(with value: Any)
 
 }

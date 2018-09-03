@@ -8,8 +8,8 @@
 
 import Foundation
 
-public protocol ErrorParsing {
+public protocol ErrorParsable {
     
-    func parseError(from JSON: AnyObject, response: HTTPURLResponse?) -> NetworkError?
+    func parseError(from value: Any, httpURLResponse: HTTPURLResponse?) -> NetworkError?
     
 }
