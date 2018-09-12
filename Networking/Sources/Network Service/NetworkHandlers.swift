@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct NetworkHandlers<ResponseType: APIResponsing> {
+public class NetworkHandlers<ResponseType: APIResponsing> {
     
     let successHandler: ((_ response: ResponseType) -> Void)?
     let executingHandler: RequestExecutingHandler?
