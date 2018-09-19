@@ -2,14 +2,14 @@ Pod::Spec.new do |s|
 
 # 1
 s.platform = :ios
-s.swift_version = '4.0'
+s.swift_version = '4.2'
 s.ios.deployment_target = '10.0'
 s.name = "SKNetworkingLib"
 s.summary = "Library helps to create and execute requests"
 s.requires_arc = true
 
 # 2
-s.version = "0.0.8"
+s.version = "0.0.9"
 
 # 3
 s.license = { :type => "MIT", :file => "LICENSE" }
@@ -33,8 +33,6 @@ s.source_files = "Networking/**/*.{swift}"
 #10
 s.dependency 'SKActivityViewable'
 s.dependency 'SKAlertViewable'
-s.dependency 'NVActivityIndicatorView'
-s.dependency 'SwiftyDrop'
 s.dependency 'Alamofire'
 
 end

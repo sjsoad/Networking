@@ -20,7 +20,7 @@ public extension RequestErrorHandling {
     
     func requestErrorHandler() -> ErrorHandler {
         return { [weak self] (networkError) in
-            self?.alertView?.show(message: networkError.error.localizedDescription, for: .error)
+            self?.alertView?.show(message: networkError.error.localizedDescription, dismissAfter: 3)
         }
     }
     
