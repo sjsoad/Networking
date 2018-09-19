@@ -9,7 +9,7 @@
 import Foundation
 import SKAlertViewable
 
-public protocol RequestErrorHandling: AlertViewable where Self: NSObject {
+public protocol RequestErrorHandling where Self: NSObject {
     
     var alertView: AlertViewable? { get }
     func requestErrorHandler() -> ErrorHandler
