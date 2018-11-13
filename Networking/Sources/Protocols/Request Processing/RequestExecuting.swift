@@ -12,18 +12,17 @@ import SKActivityViewable
 public protocol RequestExecuting where Self: NSObject {
     
     var activityView: ActivityViewable? { get }
-    func requestExecutingHandler() -> RequestExecutingHandler
+    func handleExecuting(_ executing: Bool)
     
 }
 
 public extension RequestExecuting {
     
-    func requestExecutingHandler() -> RequestExecutingHandler {
-        return { [weak self] (executing) in
-            guard executing else {
-                self?.activityView?.hideActivity()
-                return }
-            self?.activityView?.showActivity()
+    func handleExecuting(_ executing: Bool) {
+        if executing {
+            activityView?.showActivity()
+        } else {
+            activityView?.hideActivity()
         }
     }
     

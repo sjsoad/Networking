@@ -34,8 +34,8 @@ public class DefaultRequestExecutor: RequestExecutor {
         default:
             print("\(request.requestType) is ignored. Not data request")
         }
-        dataRequest?.responseJSON(completionHandler: completion)
         requestHandler?(dataRequest, nil)
+        dataRequest?.responseJSON(completionHandler: completion)
     }
     
     public func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
@@ -46,12 +46,13 @@ public class DefaultRequestExecutor: RequestExecutor {
             downloadRequest = sessionManager.download(resumingWith: data, to: destination)
         case .downloadTo(let parameters, let destination):
             downloadRequest = sessionManager.download(request.urlString, method: request.HTTPMethod, parameters: parameters,
-                                                      encoding: JSONEncoding.default, headers: request.headers, to: destination)
+                                                      headers: request.headers, to: destination)
         default:
             print("\(request.requestType) is ignored. Not download request")
         }
-        downloadRequest?.responseJSON(completionHandler: completion)
         requestHandler?(downloadRequest, nil)
+        downloadRequest?.responseData(completionHandler: completion)
+        
     }
     
     public func multipartRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,

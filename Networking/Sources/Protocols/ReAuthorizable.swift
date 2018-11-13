@@ -9,15 +9,15 @@ import Foundation
 
 public protocol ReAuthorizable {
     
-    func shouldReAuthAndRepeat(after error: NetworkError) -> Bool
-    func reAuthAndRepeat<RequestType: APIRequesting>(_ request: RequestType, completion: @escaping (RequestType?) -> Void)
+    func shouldReAuthAndRepeat(after code: Int) -> Bool
+    func reAuthAndRepeat<RequestType: APIRequesting>(_ request: RequestType, completion: @escaping (RequestType) -> Void)
     
 }
 
 public extension ReAuthorizable {
     
-    func shouldReAuthAndRepeat(after error: NetworkError) -> Bool {
-        return error.code == StatusCode.unauthorized.rawValue
+    func shouldReAuthAndRepeat(after code: Int) -> Bool {
+        return code == StatusCode.unauthorized.rawValue
     }
     
 }

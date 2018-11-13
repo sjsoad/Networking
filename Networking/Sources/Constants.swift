@@ -12,15 +12,14 @@ import Alamofire
 // MARK: - Alamofire -
 
 public typealias RequestClass = Request // Alamofire
-public typealias Method = Alamofire.HTTPMethod // Alamofire
+public typealias RequestMethod = Alamofire.HTTPMethod // Alamofire
 public typealias DataResponseHandler = (DataResponse<Any>) -> Void // Alamofire
-public typealias DownloadResponseHandler = (DownloadResponse<Any>) -> Void // Alamofire
+public typealias DownloadResponseHandler = (DownloadResponse<Data>) -> Void // Alamofire
 public typealias DownloadFileDestination = DownloadRequest.DownloadFileDestination // Alamofire
 
 // MARK: - Custom -
 
-public typealias NetworkError = (error: Error, code: Int?)
-public typealias ErrorHandler = (_ error: NetworkError) -> Void
+public typealias ErrorHandler = (_ error: Error) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
 

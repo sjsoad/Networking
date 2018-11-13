@@ -28,18 +28,15 @@ open class DefaultNetworkService: NetworkService {
         switch request.requestType {
         case .simple, .uploadData, .uploadURL, .uploadStream:
             requestExecutor.dataRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
-                guard let `self` = self else { return }
-                self.parse(data.result, response: data.response, from: request, with: handlers)
+                self.map({ $0.parse(data.result, response: data.response, from: request, with: handlers) })
             }
         case .downloadResuming, .downloadTo:
             requestExecutor.downloadRequest(from: request, requestHandler(with: handlers)) { [weak self] (downloadData) in
-                guard let `self` = self else { return }
-                self.parse(downloadData.result, response: downloadData.response, from: request, with: handlers)
+                self.map({ $0.parse(downloadData.result, response: downloadData.response, from: request, with: handlers) })
             }
         case .uploadMultipart:
             requestExecutor.multipartRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
-                guard let `self` = self else { return }
-                self.parse(data.result, response: data.response, from: request, with: handlers)
+                self.map({ $0.parse(data.result, response: data.response, from: request, with: handlers) })
             }
         }
     }
@@ -69,40 +66,39 @@ open class DefaultNetworkService: NetworkService {
         }
     }
     
-    private func parse<RequestType: APIRequesting, ResponseType: APIResponsing>(_ result: Result<Any>, response: HTTPURLResponse?,
-                                                                                from request: RequestType,
-                                                                                with handlers: NetworkHandlers<ResponseType>?) {
+    private func parse<RequestType: APIRequesting, ResponseType: APIResponsing, ResultType: Any>(_ result: Result<ResultType>,
+                                                                                                 response: HTTPURLResponse?,
+                                                                                                 from request: RequestType,
+                                                                                                 with handlers: NetworkHandlers<ResponseType>?) {
         DispatchQueue.main.async { handlers?.executingHandler?(false) }
         DispatchQueue.global().async { [weak self] in
-            guard let `self` = self else { return }
-            switch result {
-            case .success(let value):
-                guard let networkError = self.errorParser.parseError(from: value, httpURLResponse: response) else {
-                    let requestResponse = ResponseType(with: value)
-                    DispatchQueue.main.async { handlers?.successHandler?(requestResponse) }
-                    return
+            self.map({
+                switch result {
+                case .success(let value):
+                    if let error = $0.errorParser.parseError(from: value, httpURLResponse: response) {
+                        $0.process(error, response?.statusCode, from: request, with: handlers)
+                    } else {
+                        let requestResponse = ResponseType(with: value)
+                        DispatchQueue.main.async { handlers?.successHandler?(requestResponse) }
+                    }
+                case .failure(let error):
+                    $0.process(error, response?.statusCode, from: request, with: handlers)
                 }
-                self.process(networkError, from: request, with: handlers)
-            case .failure(let error):
-                let networkError = (error: error, code: response?.statusCode)
-                self.process(networkError, from: request, with: handlers)
-            }
+            })
         }
     }
     
-    private func process<RequestType: APIRequesting, ResponseType: APIResponsing>(_ error: NetworkError, from request: RequestType,
+    private func process<RequestType: APIRequesting, ResponseType: APIResponsing>(_ error: Error, _ code: Int?, from request: RequestType,
                                                                                   with handlers: NetworkHandlers<ResponseType>?) {
-        guard let reAuthorizer = reAuthorizer, reAuthorizer.shouldReAuthAndRepeat(after: error) else {
+        if let code = code, let reAuthorizer = reAuthorizer, reAuthorizer.shouldReAuthAndRepeat(after: code) {
+            pauseAllRequests(true)
+            reAuthorizer.reAuthAndRepeat(request, completion: { [weak self] (reAuthorizedRequest) in
+                guard let `self` = self else { return }
+                self.pauseAllRequests(false)
+                self.execute(reAuthorizedRequest, with: handlers)
+            })
+        } else {
             DispatchQueue.main.async { handlers?.errorHandler?(error) }
-            return }
-        pauseAllRequests(true)
-        reAuthorizer.reAuthAndRepeat(request) { [weak self] (reAuthorizedRequest) in
-            guard let `self` = self else { return }
-            self.pauseAllRequests(false)
-            guard let reAuthorizedRequest = reAuthorizedRequest else {
-                DispatchQueue.main.async { handlers?.errorHandler?(error) }
-                return }
-            self.execute(reAuthorizedRequest, with: handlers)
         }
     }
     
