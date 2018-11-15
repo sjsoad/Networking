@@ -75,7 +75,7 @@ open class DefaultNetworkService: NetworkService {
             self.map({
                 switch result {
                 case .success(let value):
-                    if let error = $0.errorParser.parseError(from: value, httpURLResponse: response) {
+                    if let error = $0.errorParser.parseError(from: value) {
                         $0.process(error, response?.statusCode, from: request, with: handlers)
                     } else {
                         let requestResponse = ResponseType(with: value)
