@@ -10,6 +10,10 @@ import Foundation
 
 public protocol APIResponsing {
 
+    associatedtype Value
+    
+    var result: Value? { get }
+    
     init(with value: Any)
 
 }
