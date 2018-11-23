@@ -10,7 +10,7 @@ import Foundation
 public extension String {
     
     var data: Data? {
-        return self.data(using: .utf8)
+        return data(using: .utf8)
     }
     
 }
