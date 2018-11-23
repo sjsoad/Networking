@@ -11,7 +11,7 @@ import Alamofire
 
 // MARK: - Alamofire -
 
-public typealias RequestClass = Request // Alamofire
+public typealias UsedRequestClass = Request // Alamofire
 public typealias RequestMethod = Alamofire.HTTPMethod // Alamofire
 public typealias DataResponseHandler = (DataResponse<Any>) -> Void // Alamofire
 public typealias DownloadResponseHandler = (DownloadResponse<Data>) -> Void // Alamofire
@@ -19,9 +19,33 @@ public typealias DownloadFileDestination = DownloadRequest.DownloadFileDestinati
 
 // MARK: - Custom -
 
+public enum RequestResult<RequestClass> {
+    case success(RequestClass)
+    case failure(Error)
+    
+    public var isSuccess: Bool {
+        switch self {
+        case .success:
+            return true
+        case .failure:
+            return false
+        }
+    }
+    
+    public var value: RequestClass? {
+        switch self {
+        case .success(let value):
+            return value
+        case .failure:
+            return nil
+        }
+    }
+    
+}
+
 public typealias ErrorHandler = (_ error: Error) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
-public typealias RequestHandler = (_ request: RequestClass?, _ error: Error?) -> Void
+public typealias RequestHandler = (_ result: RequestResult<Any>) -> Void
 
 public enum RequestType {
     case simple([String: Any]?) // regular API request

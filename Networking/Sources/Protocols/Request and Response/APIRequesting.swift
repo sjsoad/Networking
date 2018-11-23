@@ -10,6 +10,7 @@ import Foundation
 
 public protocol APIRequesting {
     
+    var accessToken: String? { get set }
     var requestType: RequestType { get }
     var HTTPMethod: RequestMethod { get }
     var headers: [String: String]? { get }

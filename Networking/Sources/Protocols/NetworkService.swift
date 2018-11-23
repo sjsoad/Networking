@@ -11,5 +11,5 @@ public protocol NetworkService: RequestManaging {
     
     init(requestExecutor: RequestExecutor, reAuthorizer: ReAuthorizable?, errorParser: ErrorParsable)
     func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-
+    
 }

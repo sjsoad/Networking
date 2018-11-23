@@ -19,11 +19,7 @@ public protocol RequestExecuting where Self: NSObject {
 public extension RequestExecuting {
     
     func handleExecuting(_ executing: Bool) {
-        if executing {
-            activityView?.showActivity()
-        } else {
-            activityView?.hideActivity()
-        }
+        activityView.map({ executing ? $0.showActivity() : $0.hideActivity() })
     }
     
 }

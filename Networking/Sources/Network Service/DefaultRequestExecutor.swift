@@ -20,7 +20,7 @@ public class DefaultRequestExecutor: RequestExecutor {
     
     public func dataRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
                                                         with completion: @escaping DataResponseHandler) {
-        var dataRequest: DataRequest?
+        var dataRequest: DataRequest!
         switch request.requestType {
         case .simple(let parameters):
             dataRequest = sessionManager.request(request.urlString, method: request.HTTPMethod, parameters: parameters,
@@ -31,16 +31,29 @@ public class DefaultRequestExecutor: RequestExecutor {
             dataRequest = sessionManager.upload(url, to: request.urlString, method: request.HTTPMethod, headers: request.headers)
         case .uploadStream(let stream):
             dataRequest = sessionManager.upload(stream, to: request.urlString, method: request.HTTPMethod, headers: request.headers)
+        case .uploadMultipart(let parameters, let multipartParameters):
+            sessionManager.upload(multipartFormData: { (multipartFormData) in
+                multipartFormData.append(with: parameters)
+                multipartFormData.appen(with: multipartParameters)
+            }, to: request.urlString, method: request.HTTPMethod, headers: request.headers, encodingCompletion: { (result) in
+                switch result {
+                case .success(let upload, _, _):
+                    requestHandler?(.success(upload))
+                    upload.responseJSON(completionHandler: completion)
+                case .failure(let error):
+                    requestHandler?(.failure(error))
+                }
+            })
         default:
             print("\(request.requestType) is ignored. Not data request")
         }
-        requestHandler?(dataRequest, nil)
-        dataRequest?.responseJSON(completionHandler: completion)
+        requestHandler?(.success(dataRequest))
+        dataRequest.responseJSON(completionHandler: completion)
     }
     
     public func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
                                                             with completion: @escaping DownloadResponseHandler) {
-        var downloadRequest: DownloadRequest?
+        var downloadRequest: DownloadRequest!
         switch request.requestType {
         case .downloadResuming(let data, let destination):
             downloadRequest = sessionManager.download(resumingWith: data, to: destination)
@@ -50,30 +63,9 @@ public class DefaultRequestExecutor: RequestExecutor {
         default:
             print("\(request.requestType) is ignored. Not download request")
         }
-        requestHandler?(downloadRequest, nil)
-        downloadRequest?.responseData(completionHandler: completion)
+        requestHandler?(.success(downloadRequest))
+        downloadRequest.responseData(completionHandler: completion)
         
-    }
-    
-    public func multipartRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
-                                                             with completion: @escaping DataResponseHandler) {
-        switch request.requestType {
-        case .uploadMultipart(let parameters, let multipartParameters):
-            sessionManager.upload(multipartFormData: { (multipartFormData) in
-                multipartFormData.append(with: parameters)
-                multipartFormData.appen(with: multipartParameters)
-            }, to: request.urlString, method: request.HTTPMethod, headers: request.headers, encodingCompletion: { (result) in
-                switch result {
-                case .success(let upload, _, _):
-                    requestHandler?(upload, nil)
-                    upload.responseJSON(completionHandler: completion)
-                case .failure(let error):
-                    requestHandler?(nil, error)
-                }
-            })
-        default:
-            print("\(request.requestType) is ignored. Not multipart request")
-        }
     }
     
     // MARK: - RequestManaging -
@@ -86,7 +78,7 @@ public class DefaultRequestExecutor: RequestExecutor {
         sessionManager.session.invalidateAndCancel()
     }
     
-    public func cancel(_ request: RequestClass) {
+    public func cancel<RequestClass>(_ request: RequestClass) where RequestClass : UsedRequestClass {
         request.cancel()
     }
     

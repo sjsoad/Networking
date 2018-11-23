@@ -25,20 +25,20 @@ open class DefaultNetworkService: NetworkService {
     
     public func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(_ request: RequestType,
                                                                                  with handlers: NetworkHandlers<ResponseType>?) {
-        switch request.requestType {
-        case .simple, .uploadData, .uploadURL, .uploadStream:
-            requestExecutor.dataRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
-                self.map({ $0.parse(data.result, response: data.response, from: request, with: handlers) })
+            let requestHandler: RequestHandler = { result in
+                handlers?.executingHandler?(result.isSuccess)
+                handlers?.requestHandler?(result)
             }
-        case .downloadResuming, .downloadTo:
-            requestExecutor.downloadRequest(from: request, requestHandler(with: handlers)) { [weak self] (downloadData) in
-                self.map({ $0.parse(downloadData.result, response: downloadData.response, from: request, with: handlers) })
+            switch request.requestType {
+            case .simple, .uploadData, .uploadURL, .uploadStream, .uploadMultipart:
+                requestExecutor.dataRequest(from: request, requestHandler) { [weak self] (data) in
+                    self.map({ $0.parse(data.result, response: data.response, from: request, with: handlers) })
+                }
+            case .downloadResuming, .downloadTo:
+                requestExecutor.downloadRequest(from: request, requestHandler) { [weak self] (downloadData) in
+                    self.map({ $0.parse(downloadData.result, response: downloadData.response, from: request, with: handlers) })
+                }
             }
-        case .uploadMultipart:
-            requestExecutor.multipartRequest(from: request, requestHandler(with: handlers)) { [weak self] (data) in
-                self.map({ $0.parse(data.result, response: data.response, from: request, with: handlers) })
-            }
-        }
     }
     
     // MARK: - RequestManaging -
@@ -50,41 +50,28 @@ open class DefaultNetworkService: NetworkService {
     public func cancelAllRequests() {
         requestExecutor.cancelAllRequests()
     }
-    
-    public func cancel(_ request: RequestClass) {
+   
+    public func cancel<RequestClass>(_ request: RequestClass) where RequestClass : UsedRequestClass {
         requestExecutor.cancel(request)
     }
     
     // MARK: - Private -
     
-    private func requestHandler<ResponseType: APIResponsing>(with handlers: NetworkHandlers<ResponseType>?) -> RequestHandler {
-        return { (request, error) in
-            DispatchQueue.main.async {
-                handlers?.executingHandler?(request != nil)
-                handlers?.requestHandler?(request, error)
+    private func parse<RequestType: APIRequesting, ResponseType: APIResponsing, ResultType>(_ result: Result<ResultType>,
+                                                                                            response: HTTPURLResponse?,
+                                                                                            from request: RequestType,
+                                                                                            with handlers: NetworkHandlers<ResponseType>?) {
+        handlers?.executingHandler?(false)
+        switch result {
+        case .success(let value):
+            if let error = errorParser.parseError(from: value) {
+                process(error, response?.statusCode, from: request, with: handlers)
+            } else {
+                let requestResponse = ResponseType(with: value as? ResponseType.InputValueType)
+                requestResponse.result.map({ handlers?.successHandler?($0) })                
             }
-        }
-    }
-    
-    private func parse<RequestType: APIRequesting, ResponseType: APIResponsing, ResultType: Any>(_ result: Result<ResultType>,
-                                                                                                 response: HTTPURLResponse?,
-                                                                                                 from request: RequestType,
-                                                                                                 with handlers: NetworkHandlers<ResponseType>?) {
-        DispatchQueue.main.async { handlers?.executingHandler?(false) }
-        DispatchQueue.global().async { [weak self] in
-            self.map({
-                switch result {
-                case .success(let value):
-                    if let error = $0.errorParser.parseError(from: value) {
-                        $0.process(error, response?.statusCode, from: request, with: handlers)
-                    } else {
-                        let requestResponse = ResponseType(with: value)
-                        DispatchQueue.main.async { handlers?.successHandler?(requestResponse) }
-                    }
-                case .failure(let error):
-                    $0.process(error, response?.statusCode, from: request, with: handlers)
-                }
-            })
+        case .failure(let error):
+            process(error, response?.statusCode, from: request, with: handlers)
         }
     }
     
@@ -98,7 +85,7 @@ open class DefaultNetworkService: NetworkService {
                 self.execute(reAuthorizedRequest, with: handlers)
             })
         } else {
-            DispatchQueue.main.async { handlers?.errorHandler?(error) }
+            handlers?.errorHandler?(error)
         }
     }
     

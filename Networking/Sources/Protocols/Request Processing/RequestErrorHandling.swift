@@ -19,7 +19,7 @@ public protocol RequestErrorHandling where Self: NSObject {
 public extension RequestErrorHandling {
     
     func handleError(_ error: Error) {
-        alertView?.show(message: error.localizedDescription, dismissAfter: 3)
+        alertView.map({ $0.show(message: error.localizedDescription, dismissAfter: 3) })
     }
     
 }

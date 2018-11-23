@@ -14,7 +14,5 @@ public protocol RequestExecutor: RequestManaging {
                                                  with completion: @escaping DataResponseHandler)
     func downloadRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
                                                      with completion: @escaping DownloadResponseHandler)
-    func multipartRequest<RequestType: APIRequesting>(from request: RequestType, _ requestHandler: RequestHandler?,
-                                                      with completion: @escaping DataResponseHandler)
     
 }
