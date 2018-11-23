@@ -21,7 +21,7 @@ public typealias DownloadFileDestination = DownloadRequest.DownloadFileDestinati
 
 public typealias ErrorHandler = (_ error: Error) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
-public typealias RequestHandler<RequestType> = (_ result: RequestResult<RequestType>) -> Void
+public typealias RequestHandler = (_ result: RequestResult<UsedRequestClass>) -> Void
 
 public enum RequestType {
     case simple([String: Any]?) // regular API request

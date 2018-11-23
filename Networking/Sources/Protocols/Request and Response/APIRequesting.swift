@@ -24,3 +24,9 @@ public extension APIRequesting {
     var headers: [String: String]? { return nil }
     
 }
+
+extension APIRequesting {
+    
+    var isAuthorized: Bool { return accessToken != nil }
+    
+}

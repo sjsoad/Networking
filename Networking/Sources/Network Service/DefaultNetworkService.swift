@@ -11,15 +11,12 @@ import Alamofire
 open class DefaultNetworkService: NetworkService {
 
     private let requestExecutor: RequestExecutor
-    private let reAuthorizer: ReAuthorizable?
     private let errorParser: ErrorParsable
     
     // MARK: - Public -
     
-    public required init(requestExecutor: RequestExecutor = DefaultRequestExecutor(), reAuthorizer: ReAuthorizable? = nil,
-                         errorParser: ErrorParsable) {
+    public required init(requestExecutor: RequestExecutor = DefaultRequestExecutor(), errorParser: ErrorParsable) {
         self.requestExecutor = requestExecutor
-        self.reAuthorizer = reAuthorizer
         self.errorParser = errorParser
     }
     
@@ -65,26 +62,12 @@ open class DefaultNetworkService: NetworkService {
         switch result {
         case .success(let value):
             if let error = errorParser.parseError(from: value) {
-                process(error, response?.statusCode, from: request, with: handlers)
+                handlers?.errorHandler?(error)
             } else {
                 let requestResponse = ResponseType(with: value as? ResponseType.InputValueType)
                 requestResponse.result.map({ handlers?.successHandler?($0) })                
             }
         case .failure(let error):
-            process(error, response?.statusCode, from: request, with: handlers)
-        }
-    }
-    
-    private func process<RequestType: APIRequesting, ResponseType: APIResponsing>(_ error: Error, _ code: Int?, from request: RequestType,
-                                                                                  with handlers: NetworkHandlers<ResponseType>?) {
-        if let code = code, let reAuthorizer = reAuthorizer, reAuthorizer.shouldReAuthAndRepeat(after: code) {
-            pauseAllRequests(true)
-            reAuthorizer.reAuthAndRepeat(request, completion: { [weak self] (reAuthorizedRequest) in
-                guard let `self` = self else { return }
-                self.pauseAllRequests(false)
-                self.execute(reAuthorizedRequest, with: handlers)
-            })
-        } else {
             handlers?.errorHandler?(error)
         }
     }
