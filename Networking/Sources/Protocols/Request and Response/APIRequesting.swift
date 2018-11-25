@@ -10,7 +10,6 @@ import Foundation
 
 public protocol APIRequesting {
     
-    var accessToken: String? { get set }
     var requestType: RequestType { get }
     var HTTPMethod: RequestMethod { get }
     var headers: [String: String]? { get }
@@ -22,11 +21,5 @@ public extension APIRequesting {
     
     var HTTPMethod: RequestMethod { return .get }
     var headers: [String: String]? { return nil }
-    
-}
-
-extension APIRequesting {
-    
-    var isAuthorized: Bool { return accessToken != nil }
     
 }

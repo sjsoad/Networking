@@ -11,7 +11,6 @@ import Alamofire
 
 // MARK: - Alamofire -
 
-public typealias UsedRequestClass = Request // Alamofire
 public typealias RequestMethod = Alamofire.HTTPMethod // Alamofire
 public typealias DataResponseHandler = (DataResponse<Any>) -> Void // Alamofire
 public typealias DownloadResponseHandler = (DownloadResponse<Data>) -> Void // Alamofire
@@ -21,7 +20,10 @@ public typealias DownloadFileDestination = DownloadRequest.DownloadFileDestinati
 
 public typealias ErrorHandler = (_ error: Error) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
-public typealias RequestHandler = (_ result: RequestResult<UsedRequestClass>) -> Void
+public typealias TokenRefreshingHandler = (_ success: Bool) -> Void
+public typealias ResponseResult<Value> = (_ result: Result<Value>, _ response: HTTPURLResponse?) -> Void
+
+//public typealias RequestHandler<RequestClass> = (_ result: RequestResult<RequestClass>) -> Void
 
 public enum RequestType {
     case simple([String: Any]?) // regular API request
@@ -37,24 +39,39 @@ public enum StatusCode: Int {
     case unauthorized = 401
 }
 
-public enum RequestResult<RequestClass> {
-    case success(RequestClass)
+public enum RequestResult {
+    case data(DataRequest)
+    case upload(UploadRequest)
+    case download(DownloadRequest)
     case failure(Error)
-    
-    public var isSuccess: Bool {
+
+    public var alamofireRequest: AlamofireRequest? {
         switch self {
-        case .success:
-            return true
+        case .data(let request):
+            return request
+        case .upload(let request):
+            return request
+        case .download(let request):
+            return request
         case .failure:
-            return false
+            return nil
         }
     }
     
-    public var value: RequestClass? {
+    public var hasValue: Bool {
         switch self {
-        case .success(let value):
-            return value
         case .failure:
+            return false
+        default:
+            return true
+        }
+    }
+    
+    public var error: Error? {
+        switch self {
+        case .failure(let error):
+            return error
+        default:
             return nil
         }
     }

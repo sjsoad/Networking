@@ -12,6 +12,5 @@ public protocol RequestManaging {
     
     func pauseAllRequests(_ pause: Bool)
     func cancelAllRequests()
-    func cancel<RequestClass: UsedRequestClass>(_ request: RequestClass)
     
 }
