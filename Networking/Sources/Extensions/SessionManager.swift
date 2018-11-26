@@ -37,13 +37,13 @@ extension SessionManager {
                     requestHandler(.failure(error))
                 }
             })
-        case .downloadResuming(let data, let destination):
-            let downloadRequest = download(resumingWith: data, to: destination)
-            requestHandler(.download(downloadRequest))
-        case .downloadTo(let parameters, let destination):
-            let downloadRequest = download(requestInfo.urlString, method: requestInfo.HTTPMethod, parameters: parameters,
-                                           headers: requestInfo.headers, to: destination)
-            requestHandler(.download(downloadRequest))
+        case .downloadResuming(let data, let destination): break
+//            let downloadRequest = download(resumingWith: data, to: destination)
+//            requestHandler(.download(downloadRequest))
+        case .downloadTo(let parameters, let destination): break
+//            let downloadRequest = download(requestInfo.urlString, method: requestInfo.HTTPMethod, parameters: parameters,
+//                                           headers: requestInfo.headers, to: destination)
+//            requestHandler(.download(downloadRequest))
         }
     }
     

@@ -42,7 +42,7 @@ public enum StatusCode: Int {
 public enum RequestResult {
     case data(DataRequest)
     case upload(UploadRequest)
-    case download(DownloadRequest)
+//    case download(DownloadRequest)
     case failure(Error)
 
     public var alamofireRequest: AlamofireRequest? {
@@ -51,8 +51,8 @@ public enum RequestResult {
             return request
         case .upload(let request):
             return request
-        case .download(let request):
-            return request
+//        case .download(let request):
+//            return request
         case .failure:
             return nil
         }

@@ -27,7 +27,7 @@ open class DefaultNetworkService: NetworkService {
                 let responseHandler: (Result<ResponseType.InputValueType>) -> Void = { [weak self] (result) in
                     self.map({ $0.parse(result, with: nil, from: request, with: handlers) })
                 }
-                result.alamofireRequest?.response(with: responseHandler)
+                result.alamofireRequest?.response(queue: nil, responseSerializer: <#T##DataResponseSerializerProtocol#>, completionHandler: <#T##(DataResponse<DataResponseSerializerProtocol.SerializedObject>) -> Void#>)
             })
     }
     
