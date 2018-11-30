@@ -9,9 +9,7 @@ import Alamofire
 
 public protocol AlamofireRequest {
     
-    @discardableResult
-    func response<T: DataResponseSerializerProtocol>(queue: DispatchQueue?, responseSerializer: T,
-                                                     completionHandler: @escaping (DataResponse<T.SerializedObject>) -> Void) -> Self
+    
     
 }
 

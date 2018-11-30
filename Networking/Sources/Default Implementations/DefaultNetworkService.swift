@@ -20,14 +20,38 @@ open class DefaultNetworkService: NetworkService {
         self.errorParser = errorParser
     }
     
-    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-        where RequestType: APIRequesting, ResponseType: APIResponsing {
-            sessionManager.buildRequest(from: request, with: { result in
-                handlers?.executingHandler?(result.hasValue)
-                let responseHandler: (Result<ResponseType.InputValueType>) -> Void = { [weak self] (result) in
-                    self.map({ $0.parse(result, with: nil, from: request, with: handlers) })
-                }
-                result.alamofireRequest?.response(queue: nil, responseSerializer: <#T##DataResponseSerializerProtocol#>, completionHandler: <#T##(DataResponse<DataResponseSerializerProtocol.SerializedObject>) -> Void#>)
+    // MARK: - JSON -
+    
+    public func executeJSON<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
+        where RequestType : APIDataRequesting, ResponseType : APIResponsing {
+            sessionManager.build(from: request, with: { result in
+                handlers?.executingHandler?(result.isSuccess)
+                guard case .success(let task) = result else { return }
+                task.responseJSON(completionHandler: { [weak self] response in
+                    self.map({ $0.parse(response.result, with: handlers) })
+                })
+            })
+    }
+    
+    public func executeJSON<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
+        where RequestType : APIUploadRequesting, ResponseType : APIResponsing {
+            sessionManager.build(from: request, with: { result in
+                handlers?.executingHandler?(result.isSuccess)
+                guard case .success(let task) = result else { return }
+                task.responseJSON(completionHandler: { [weak self] response in
+                    self.map({ $0.parse(response.result, with: handlers) })
+                })
+            })
+    }
+    
+    public func executeJSON<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
+        where RequestType : APIDownloadRequesting, ResponseType : APIResponsing {
+            sessionManager.build(from: request, with: { result in
+                handlers?.executingHandler?(result.isSuccess)
+                guard case .success(let task) = result else { return }
+                task.responseJSON(completionHandler: { [weak self] response in
+                    self.map({ $0.parse(response.result, with: handlers) })
+                })
             })
     }
     
@@ -43,14 +67,13 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Private -
     
-    private func parse<RequestType, ResponseType>(_ result: Result<ResponseType.InputValueType>, with response: HTTPURLResponse?,
-                                                  from request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-        where RequestType : APIRequesting, ResponseType : APIResponsing {
+    private func parse<ResponseType>(_ result: Result<Any>, with handlers: NetworkHandlers<ResponseType>?)
+        where ResponseType : APIResponsing {
         handlers?.executingHandler?(false)
         switch result {
         case .success(let value):
             errorParser.parseError(from: value).map({ handlers?.errorHandler?($0) }) ??
-                ResponseType(with: value).result.map({ handlers?.successHandler?($0) })
+                ResponseType(with: value as? ResponseType.InputValueType).result.map({ handlers?.successHandler?($0) })
         case .failure(let error):
             handlers?.errorHandler?(error)
         }

@@ -9,41 +9,50 @@ import Alamofire
 
 extension SessionManager {
     
-    func buildRequest<RequestType: APIRequesting>(from requestInfo: RequestType,
-                                                  with requestHandler: @escaping (RequestResult) -> Void) {
+    func build(from requestInfo: APIDataRequesting, with handler: (Result<DataRequest>) -> Void) {
         switch requestInfo.requestType {
         case .simple(let parameters):
             let dataRequest = request(requestInfo.urlString, method: requestInfo.HTTPMethod, parameters: parameters, encoding: JSONEncoding.default,
                                       headers: requestInfo.headers)
-            requestHandler(.data(dataRequest))
+            handler(.success(dataRequest))
+        }
+    }
+    
+    func build(from requestInfo: APIUploadRequesting, with handler: @escaping (Result<UploadRequest>) -> Void) {
+        switch requestInfo.requestType {
         case .uploadData(let data):
-            let dataRequest = upload(data, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
-            requestHandler(.upload(dataRequest))
+            let uploadRequest = upload(data, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
+            handler(.success(uploadRequest))
         case .uploadURL(let url):
-            let dataRequest = upload(url, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
-            requestHandler(.upload(dataRequest))
+            let uploadRequest = upload(url, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
+            handler(.success(uploadRequest))
         case .uploadStream(let stream):
-            let dataRequest = upload(stream, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
-            requestHandler(.upload(dataRequest))
+            let uploadRequest = upload(stream, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
+            handler(.success(uploadRequest))
         case .uploadMultipart(let parameters, let multipartParameters):
             upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(with: parameters)
                 multipartFormData.appen(with: multipartParameters)
             }, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers, encodingCompletion: { (result) in
                 switch result {
-                case .success(let request, _, _):
-                    requestHandler(.upload(request))
+                case .success(let uploadRequest, _, _):
+                    handler(.success(uploadRequest))
                 case .failure(let error):
-                    requestHandler(.failure(error))
+                    handler(.failure(error))
                 }
             })
-        case .downloadResuming(let data, let destination): break
-//            let downloadRequest = download(resumingWith: data, to: destination)
-//            requestHandler(.download(downloadRequest))
-        case .downloadTo(let parameters, let destination): break
-//            let downloadRequest = download(requestInfo.urlString, method: requestInfo.HTTPMethod, parameters: parameters,
-//                                           headers: requestInfo.headers, to: destination)
-//            requestHandler(.download(downloadRequest))
+        }
+    }
+    
+    func build(from requestInfo: APIDownloadRequesting, with handler: (Result<DownloadRequest>) -> Void) {
+        switch requestInfo.requestType {
+        case .downloadResuming(let data, let destination):
+            let downloadRequest = download(resumingWith: data, to: destination)
+            handler(.success(downloadRequest))
+        case .downloadTo(let parameters, let destination):
+            let downloadRequest = download(requestInfo.urlString, method: requestInfo.HTTPMethod, parameters: parameters,
+                                           headers: requestInfo.headers, to: destination)
+            handler(.success(downloadRequest))
         }
     }
     
