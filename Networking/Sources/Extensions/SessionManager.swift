@@ -9,7 +9,7 @@ import Alamofire
 
 extension SessionManager {
     
-    func build(from requestInfo: APIDataRequesting, with handler: (Result<DataRequest>) -> Void) {
+    func build(from requestInfo: APIDataRequesting, with handler: DataRequestHandler) {
         switch requestInfo.requestType {
         case .simple(let parameters):
             let dataRequest = request(requestInfo.urlString, method: requestInfo.HTTPMethod, parameters: parameters, encoding: JSONEncoding.default,
@@ -18,7 +18,7 @@ extension SessionManager {
         }
     }
     
-    func build(from requestInfo: APIUploadRequesting, with handler: @escaping (Result<UploadRequest>) -> Void) {
+    func build(from requestInfo: APIUploadRequesting, with handler: @escaping UploadRequestHandler) {
         switch requestInfo.requestType {
         case .uploadData(let data):
             let uploadRequest = upload(data, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
@@ -44,7 +44,7 @@ extension SessionManager {
         }
     }
     
-    func build(from requestInfo: APIDownloadRequesting, with handler: (Result<DownloadRequest>) -> Void) {
+    func build(from requestInfo: APIDownloadRequesting, with handler: DownloadRequestHandler) {
         switch requestInfo.requestType {
         case .downloadResuming(let data, let destination):
             let downloadRequest = download(resumingWith: data, to: destination)
