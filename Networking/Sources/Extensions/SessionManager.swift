@@ -30,17 +30,7 @@ extension SessionManager {
             let uploadRequest = upload(stream, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
             handler(.success(uploadRequest))
         case .uploadMultipart(let parameters, let multipartParameters):
-            upload(multipartFormData: { (multipartFormData) in
-                multipartFormData.append(with: parameters)
-                multipartFormData.appen(with: multipartParameters)
-            }, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers, encodingCompletion: { (result) in
-                switch result {
-                case .success(let uploadRequest, _, _):
-                    handler(.success(uploadRequest))
-                case .failure(let error):
-                    handler(.failure(error))
-                }
-            })
+            multipartRequest(from: requestInfo, with: parameters, multipartParameters, handler)
         }
     }
     
@@ -54,6 +44,23 @@ extension SessionManager {
                                            headers: requestInfo.headers, to: destination)
             handler(.success(downloadRequest))
         }
+    }
+    
+    // MARK: - Private -
+    
+    private func multipartRequest(from requestInfo: APIUploadRequesting, with parameters: [String: Any]?,
+                                  _ multipartParameters: MultipartDataParameters, _ handler: @escaping UploadRequestHandler) {
+        upload(multipartFormData: { (multipartFormData) in
+            multipartFormData.append(with: parameters)
+            multipartFormData.appen(with: multipartParameters)
+        }, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers, encodingCompletion: { (result) in
+            switch result {
+            case .success(let uploadRequest, _, _):
+                handler(.success(uploadRequest))
+            case .failure(let error):
+                handler(.failure(error))
+            }
+        })
     }
     
 }
