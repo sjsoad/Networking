@@ -52,7 +52,7 @@ extension SessionManager {
                                   _ multipartParameters: MultipartDataParameters, _ handler: @escaping UploadRequestHandler) {
         upload(multipartFormData: { (multipartFormData) in
             multipartFormData.append(with: parameters)
-            multipartFormData.appen(with: multipartParameters)
+            multipartFormData.append(with: multipartParameters)
         }, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers, encodingCompletion: { (result) in
             switch result {
             case .success(let uploadRequest, _, _):

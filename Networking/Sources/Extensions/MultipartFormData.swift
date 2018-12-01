@@ -16,7 +16,7 @@ extension MultipartFormData {
         })
     }
     
-    func appen(with multipartDataParameters: MultipartDataParameters) {
+    func append(with multipartDataParameters: MultipartDataParameters) {
         append(multipartDataParameters.multipartData, withName: multipartDataParameters.multipartKey,
                fileName: multipartDataParameters.fileName, mimeType: multipartDataParameters.mimeType)
     }
