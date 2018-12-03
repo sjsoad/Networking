@@ -48,8 +48,8 @@ open class DefaultNetworkService: NetworkService {
     private func privateBuild<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                          _ requestHandler: RequestHandler<RequestType.RequestType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            print(RequestType.self)
-            DefaultRequestBuilder<RequestType>().build(with: sessionManager, from: request, handler: { [weak self] result in
+            let builder: RequestBuilding = DefaultRequestBuilder()
+            builder.build(with: sessionManager, from: request, handler: { [weak self] result in
                 handlers?.executingHandler?(result.isSuccess)
                 requestHandler?(result)
                 guard case .success(let task) = result else { return }

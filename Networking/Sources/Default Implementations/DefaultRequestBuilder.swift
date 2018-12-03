@@ -7,21 +7,22 @@
 
 import Alamofire
 
-public struct DefaultRequestBuilder<IncomingRequestType: APIRequesting>: RequestBuilding {
+public struct DefaultRequestBuilder: RequestBuilding {
     
-    public typealias RequestType = IncomingRequestType
-    
-    public func build(with sessionManager: SessionManager, from requestInfo: IncomingRequestType,
-                      handler: (Result<IncomingRequestType.RequestType>) -> Void) {
-        fatalError("RequestType not implemented in library. Write extension to RequestBuilding protocol")
+    public func build<RequestType>(with sessionManager: SessionManager, from requestInfo: RequestType,
+                                   handler: (Result<RequestType.RequestType>) -> Void) where RequestType : APIRequesting {
+        print("Default implementation")
     }
+    
+    
 }
 
 // MARK: - APIDataRequesting -
 
-public extension DefaultRequestBuilder where RequestType: APIDataRequesting {
+public extension RequestBuilding {
     
-    func build(with sessionManager: SessionManager, from requestInfo: RequestType, handler: RequestHandler<RequestType.RequestType>) {
+    func build<RequestType>(with sessionManager: SessionManager, from requestInfo: RequestType,
+                            handler: RequestHandler<RequestType.RequestType>) where RequestType: APIDataRequesting {
         switch requestInfo.requestType {
         case .simple(let parameters):
             let dataRequest = request(requestInfo.urlString, method: requestInfo.HTTPMethod, parameters: parameters, encoding: JSONEncoding.default,
@@ -34,9 +35,10 @@ public extension DefaultRequestBuilder where RequestType: APIDataRequesting {
 
 // MARK: - APIUploadRequesting -
 
-public extension DefaultRequestBuilder where RequestType: APIUploadRequesting {
+public extension RequestBuilding {
     
-    func build(with sessionManager: SessionManager, from requestInfo: RequestType, handler: @escaping RequestHandler<RequestType.RequestType>) {
+    func build<RequestType>(with sessionManager: SessionManager, from requestInfo: RequestType,
+                            handler: @escaping RequestHandler<RequestType.RequestType>) where RequestType: APIUploadRequesting {
         switch requestInfo.requestType {
         case .uploadData(let data):
             let uploadRequest = upload(data, to: requestInfo.urlString, method: requestInfo.HTTPMethod, headers: requestInfo.headers)
@@ -54,8 +56,10 @@ public extension DefaultRequestBuilder where RequestType: APIUploadRequesting {
     
     // MARK: - Private -
     
-    private func multipartRequest(from requestInfo: RequestType, with parameters: [String: Any]?, _ multipartParameters: MultipartDataParameters,
-                                  _ handler: @escaping RequestHandler<RequestType.RequestType>) {
+    private func multipartRequest<RequestType>(from requestInfo: RequestType, with parameters: [String: Any]?,
+                                               _ multipartParameters: MultipartDataParameters,
+                                               _ handler: @escaping RequestHandler<RequestType.RequestType>)
+        where RequestType: APIUploadRequesting {
         upload(multipartFormData: { (multipartFormData) in
             multipartFormData.append(with: parameters)
             multipartFormData.append(with: multipartParameters)
@@ -73,9 +77,10 @@ public extension DefaultRequestBuilder where RequestType: APIUploadRequesting {
 
 // MARK: - APIDownloadRequesting -
 
-public extension DefaultRequestBuilder where RequestType: APIDownloadRequesting {
+public extension RequestBuilding {
     
-    func build(with sessionManager: SessionManager, from requestInfo: RequestType, handler: RequestHandler<RequestType.RequestType>) {
+    func build<RequestType>(with sessionManager: SessionManager, from requestInfo: RequestType,
+                            handler: RequestHandler<RequestType.RequestType>)  where RequestType: APIDownloadRequesting {
         switch requestInfo.requestType {
         case .downloadResuming(let data, let destination):
             let downloadRequest = download(resumingWith: data, to: destination)
