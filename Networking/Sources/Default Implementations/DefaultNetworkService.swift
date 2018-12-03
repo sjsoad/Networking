@@ -43,9 +43,12 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Private -
 
+    // 1
+    
     private func privateBuild<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-                                                           _ requestHandler: RequestHandler<RequestType.RequestType>?)
+                                                         _ requestHandler: RequestHandler<RequestType.RequestType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
+            print(RequestType.self)
             DefaultRequestBuilder<RequestType>().build(with: sessionManager, from: request, handler: { [weak self] result in
                 handlers?.executingHandler?(result.isSuccess)
                 requestHandler?(result)
@@ -54,6 +57,8 @@ open class DefaultNetworkService: NetworkService {
             })
     }
     
+    // 2
+    
     private func privateExecute<RequestType, ResponseType>(_ task: RequestType.RequestType, _ request: RequestType,
                                                            with handlers: NetworkHandlers<ResponseType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
@@ -61,11 +66,18 @@ open class DefaultNetworkService: NetworkService {
                 handlers?.executingHandler?(false)
                 switch result {
                 case .success(let value):
-                    break
+                    self?.privateParse(value, with: handlers)
                 case .failure(let error):
                     handlers?.errorHandler?(error)
                 }
             })
+    }
+    
+    // 3
+    
+    private func privateParse<ResponseType>(_ value: ResponseType.ResponseType, with handlers: NetworkHandlers<ResponseType>?)
+        where ResponseType : APIResponsing {
+            DefaultResponseParser<ResponseType>().parse(value, with: errorParser, and: handlers)
     }
     
 }

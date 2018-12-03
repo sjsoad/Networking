@@ -11,11 +11,10 @@ import Foundation
 public protocol APIResponsing {
 
     associatedtype ResponseType
-    associatedtype InputValueType
     associatedtype ResultValueType
     
     var result: ResultValueType? { get }
     
-    init(with value: InputValueType?)
+    init(with value: ResponseType?)
 
 }

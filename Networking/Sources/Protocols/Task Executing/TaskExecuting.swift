@@ -45,7 +45,6 @@ public extension TaskExecuting where TaskType: DownloadRequest, Value == Any {
     
 }
 
-
 public extension TaskExecuting where TaskType: DownloadRequest, Value == Data {
     
     func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType, completion: @escaping ResultHandler<Value>) {
