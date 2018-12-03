@@ -9,7 +9,9 @@
 import Foundation
 
 public protocol APIRequesting {
-
+    
+//    static var type: RequestType { get }
+    var responseType: ResponseType { get }
     var HTTPMethod: RequestMethod { get }
     var headers: [String: String]? { get }
     var urlString: String { get }
@@ -18,6 +20,8 @@ public protocol APIRequesting {
 
 public extension APIRequesting {
     
+//    static var type: RequestType { return .upload }
+    var responseType: ResponseType { return .json }
     var HTTPMethod: RequestMethod { return .get }
     var headers: [String: String]? { return nil }
     

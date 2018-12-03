@@ -10,7 +10,6 @@ import Foundation
 import Alamofire
 
 // MARK: - Alamofire -
-
 public typealias DataRequest = Alamofire.DataRequest // Alamofire
 public typealias UploadRequest = Alamofire.UploadRequest // Alamofire
 public typealias DownloadRequest = Alamofire.DownloadRequest // Alamofire
@@ -45,13 +44,14 @@ public enum DownloadRequestType {
 }
 
 public enum RequestType {
-    case simple([String: Any]?) // regular API request
-    case uploadData(Data)
-    case uploadURL(URL)
-    case uploadStream(InputStream)
-    case uploadMultipart([String: Any]?, MultipartDataParameters)
-    case downloadResuming(Data, DownloadFileDestination)
-    case downloadTo([String: Any]?, DownloadFileDestination)
+    case simple
+    case upload
+    case download
+}
+
+public enum ResponseType {
+    case json
+    case data
 }
 
 public enum StatusCode: Int {
