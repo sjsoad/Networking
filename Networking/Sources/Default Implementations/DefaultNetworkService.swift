@@ -31,19 +31,6 @@ open class DefaultNetworkService: NetworkService {
             privateExecute(request, with: handlers, requestHandler)
     }
     
-    // MARK: - Private -
-    
-    private func privateExecute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-                                                   _ requestHandler: RequestHandler<RequestType.RequestType>?)
-        where RequestType : APIRequesting, ResponseType : APIResponsing {
-            DefaultRequestBuilder<RequestType>().build(with: sessionManager, from: request, handler: { result in
-                handlers?.executingHandler?(result.isSuccess)
-                requestHandler?(result)
-                guard case .success(let task) = result else { return }
-                DefaultTaskExecuter<RequestType.RequestType>().execute(task, for: request)
-            })
-    }
-    
     // MARK: - RequestManaging -
     
     public func pauseAllRequests(_ pause: Bool) {
@@ -54,97 +41,19 @@ open class DefaultNetworkService: NetworkService {
         sessionManager.session.invalidateAndCancel()
     }
     
-    
-    // MARK: - Private -
-    
-//    private func privateExecute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                           _ requestHandler: DataRequestHandler?)
-//        where RequestType : APIDataRequesting, ResponseType : APIResponsing {
-//            baseExecuteData(request, with: handlers, requestHandler, {
-//                switch request.responseType {
-//                case .json:
-//                    $0.responseJSON(completionHandler: { [weak self] response in
-//                        self.map({ $0.parseJSON(response.result, with: handlers) })
-//                    })
-//                case .data:
-//                    $0.responseData(completionHandler: { [weak self] response in
-//                        self.map({ $0.parseData(response.result, with: handlers) })
-//                    })
-//                }
-//            })
-//    }
-//
-//    private func privateExecute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                           _ requestHandler: UploadRequestHandler?)
-//        where RequestType : APIUploadRequesting, ResponseType : APIResponsing {
-//            baseExecuteUpload(request, with: handlers, requestHandler, {
-//                switch request.responseType {
-//                case .json:
-//                    $0.responseJSON(completionHandler: { [weak self] response in
-//                        self.map({ $0.parseJSON(response.result, with: handlers) })
-//                    })
-//                case .data:
-//                    $0.responseData(completionHandler: { [weak self] response in
-//                        self.map({ $0.parseData(response.result, with: handlers) })
-//                    })
-//                }
-//            })
-//    }
-//
-//    private func privateExecute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                           _ requestHandler: DownloadRequestHandler?)
-//        where RequestType : APIDownloadRequesting, ResponseType : APIResponsing {
-//            baseExecuteDownload(request, with: handlers, requestHandler, {
-//                switch request.responseType {
-//                case .json:
-//                    $0.responseJSON(completionHandler: { [weak self] response in
-//                        self.map({ $0.parseJSON(response.result, with: handlers) })
-//                    })
-//                case .data:
-//                    $0.responseData(completionHandler: { [weak self] response in
-//                        self.map({ $0.parseData(response.result, with: handlers) })
-//                    })
-//                }
-//            })
-//    }
-    
-//    private func baseExecuteData<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                            _ requestHandler: DataRequestHandler?, _ localHandler: (DataRequest) -> Void)
-//        where RequestType : APIDataRequesting, ResponseType : APIResponsing {
-//            sessionManager.build(from: request, with: { result in
-//                handlers?.executingHandler?(result.isSuccess)
-//                requestHandler?(result)
-//                guard case .success(let task) = result else { return }
-//                localHandler(task)
-//            })
-//    }
-    
-//    private func baseExecuteUpload<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                              _ requestHandler: UploadRequestHandler?,
-//                                                              _ localHandler: @escaping (UploadRequest) -> Void)
-//        where RequestType : APIUploadRequesting, ResponseType : APIResponsing {
-//            sessionManager.build(from: request, with: { result in
-//                handlers?.executingHandler?(result.isSuccess)
-//                requestHandler?(result)
-//                guard case .success(let task) = result else { return }
-//                localHandler(task)
-//            })
-//    }
-    
-//    private func baseExecuteDownload<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                                _ requestHandler: DownloadRequestHandler?,
-//                                                                _ localHandler: @escaping (DownloadRequest) -> Void)
-//        where RequestType : APIDownloadRequesting, ResponseType : APIResponsing {
-//            sessionManager.build(from: request, with: { result in
-//                handlers?.executingHandler?(result.isSuccess)
-//                requestHandler?(result)
-//                guard case .success(let task) = result else { return }
-//                localHandler(task)
-//            })
-//    }
-    
     // MARK: - Private -
 
+    private func privateExecute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
+                                                           _ requestHandler: RequestHandler<RequestType.RequestType>?)
+        where RequestType : APIRequesting, ResponseType : APIResponsing {
+            DefaultRequestBuilder<RequestType>().build(with: sessionManager, from: request, handler: { result in
+                handlers?.executingHandler?(result.isSuccess)
+                requestHandler?(result)
+                guard case .success(let task) = result else { return }
+                DefaultTaskExecuter<RequestType.RequestType>().execute(task, for: request)
+            })
+    }
+    
     private func parseJSON<ResponseType>(_ result: Result<Any>, with handlers: NetworkHandlers<ResponseType>?)
         where ResponseType : APIResponsing {
             handlers?.executingHandler?(false)
@@ -156,7 +65,7 @@ open class DefaultNetworkService: NetworkService {
                 handlers?.errorHandler?(error)
             }
     }
-    
+
     private func parseData<ResponseType>(_ result: Result<Data>, with handlers: NetworkHandlers<ResponseType>?)
         where ResponseType : APIResponsing {
             handlers?.executingHandler?(false)

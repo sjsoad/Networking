@@ -15,19 +15,9 @@ public protocol RequestBuilding {
     
 }
 
-struct DefaultRequestBuilder<IncomingRequestType: APIRequesting>: RequestBuilding {
-    
-    typealias RequestType = IncomingRequestType
-    
-    func build(with sessionManager: SessionManager, from requestInfo: IncomingRequestType,
-               handler: (Result<IncomingRequestType.RequestType>) -> Void) {
-        fatalError("RequestType not implemented in library. Write extension to RequestBuilding protocol")
-    }
-}
-
 // MARK: - APIDataRequesting -
 
-extension RequestBuilding where RequestType: APIDataRequesting {
+public extension RequestBuilding where RequestType: APIDataRequesting {
     
     func build(with sessionManager: SessionManager, from requestInfo: RequestType, handler: RequestHandler<RequestType.RequestType>) {
         switch requestInfo.requestType {
@@ -42,7 +32,7 @@ extension RequestBuilding where RequestType: APIDataRequesting {
 
 // MARK: - APIUploadRequesting -
 
-extension RequestBuilding where RequestType: APIUploadRequesting {
+public extension RequestBuilding where RequestType: APIUploadRequesting {
     
     func build(with sessionManager: SessionManager, from requestInfo: RequestType, handler: @escaping RequestHandler<RequestType.RequestType>) {
         switch requestInfo.requestType {
@@ -81,7 +71,7 @@ extension RequestBuilding where RequestType: APIUploadRequesting {
 
 // MARK: - APIDownloadRequesting -
 
-extension RequestBuilding where RequestType: APIDownloadRequesting {
+public extension RequestBuilding where RequestType: APIDownloadRequesting {
     
     func build(with sessionManager: SessionManager, from requestInfo: RequestType, handler: RequestHandler<RequestType.RequestType>) {
         switch requestInfo.requestType {
