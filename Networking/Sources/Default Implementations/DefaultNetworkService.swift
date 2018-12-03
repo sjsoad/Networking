@@ -22,13 +22,13 @@ open class DefaultNetworkService: NetworkService {
 
     public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            privateExecute(request, with: handlers, nil)
+            privateBuild(request, with: handlers, nil)
     }
     
     public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                    _ requestHandler: @escaping RequestHandler<RequestType.RequestType>)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            privateExecute(request, with: handlers, requestHandler)
+            privateBuild(request, with: handlers, requestHandler)
     }
     
     // MARK: - RequestManaging -
@@ -43,38 +43,29 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Private -
 
-    private func privateExecute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
+    private func privateBuild<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                            _ requestHandler: RequestHandler<RequestType.RequestType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            DefaultRequestBuilder<RequestType>().build(with: sessionManager, from: request, handler: { result in
+            DefaultRequestBuilder<RequestType>().build(with: sessionManager, from: request, handler: { [weak self] result in
                 handlers?.executingHandler?(result.isSuccess)
                 requestHandler?(result)
                 guard case .success(let task) = result else { return }
-                DefaultTaskExecuter<RequestType.RequestType>().execute(task, for: request)
+                self?.privateExecute(task, request, with: handlers)
             })
     }
     
-    private func parseJSON<ResponseType>(_ result: Result<Any>, with handlers: NetworkHandlers<ResponseType>?)
-        where ResponseType : APIResponsing {
-            handlers?.executingHandler?(false)
-            switch result {
-            case .success(let value):
-                errorParser.parseError(from: value).map({ handlers?.errorHandler?($0) }) ??
-                    ResponseType(with: value as? ResponseType.InputValueType).result.map({ handlers?.successHandler?($0) })
-            case .failure(let error):
-                handlers?.errorHandler?(error)
-            }
-    }
-
-    private func parseData<ResponseType>(_ result: Result<Data>, with handlers: NetworkHandlers<ResponseType>?)
-        where ResponseType : APIResponsing {
-            handlers?.executingHandler?(false)
-            switch result {
-            case .success(let value):
-                ResponseType(with: value as? ResponseType.InputValueType).result.map({ handlers?.successHandler?($0) })
-            case .failure(let error):
-                handlers?.errorHandler?(error)
-            }
+    private func privateExecute<RequestType, ResponseType>(_ task: RequestType.RequestType, _ request: RequestType,
+                                                           with handlers: NetworkHandlers<ResponseType>?)
+        where RequestType : APIRequesting, ResponseType : APIResponsing {
+            DefaultTaskExecuter<RequestType.RequestType, ResponseType.ResponseType>().execute(task, for: request, completion: { [weak self] result in
+                handlers?.executingHandler?(false)
+                switch result {
+                case .success(let value):
+                    break
+                case .failure(let error):
+                    handlers?.errorHandler?(error)
+                }
+            })
     }
     
 }

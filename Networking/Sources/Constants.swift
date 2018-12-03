@@ -24,6 +24,7 @@ public typealias ErrorHandler = (_ error: Error) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 public typealias TokenRefreshingHandler = (_ success: Bool) -> Void
 public typealias RequestHandler<RequestType> = (Result<RequestType>) -> Void
+public typealias ResultHandler<Value> = (Result<Value>) -> Void
 
 public enum DataRequestType {
     case simple([String: Any]?)
@@ -42,8 +43,8 @@ public enum DownloadRequestType {
 }
 
 public enum ExpectedResponseType {
-    case json
-    case data
+    case `Any`
+    case Data
 }
 
 public enum StatusCode: Int {

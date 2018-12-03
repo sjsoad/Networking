@@ -5,57 +5,53 @@
 //  Created by Sergey Kostyan on 12/3/18.
 //
 
-import Foundation
+import Alamofire
 
 public protocol TaskExecuting {
 
     associatedtype TaskType: Request
-    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType)
+    associatedtype Value
+    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType, completion: @escaping ResultHandler<Value>)
     
 }
 
-public extension TaskExecuting where TaskType: DataRequest {
+public extension TaskExecuting where TaskType: DataRequest, Value == Any {
     
-    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType) {
-//        switch request.responseType {
-//        case .data:
-//            task.responseData(completionHandler: { response in
-//                switch response.result {
-//                case .failure(let error): break
-//                case .success(let value): break
-//                }
-//            })
-//        case .json:
-//            task.responseJSON(completionHandler: { response in
-//                switch response.result {
-//                case .failure(let error): break
-//                case .success(let value): break
-//                }
-//            })
-//        }
+    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType, completion: @escaping ResultHandler<Value>) {
+        task.responseJSON(completionHandler: { response in
+            completion(response.result)
+        })
     }
     
 }
 
-public extension TaskExecuting where TaskType: DownloadRequest {
+public extension TaskExecuting where TaskType: DataRequest, Value == Data {
     
-    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType) {
-//        switch request.responseType {
-//        case .data:
-//            task.responseData(completionHandler: { response in
-//                switch response.result {
-//                case .failure(let error): break
-//                case .success(let value): break
-//                }
-//            })
-//        case .json:
-//            task.responseJSON(completionHandler: { response in
-//                switch response.result {
-//                case .failure(let error): break
-//                case .success(let value): break
-//                }
-//            })
-//        }
+    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType, completion: @escaping ResultHandler<Value>) {
+        task.responseData(completionHandler: { response in
+            completion(response.result)
+        })
+    }
+    
+}
+
+public extension TaskExecuting where TaskType: DownloadRequest, Value == Any {
+    
+    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType, completion: @escaping ResultHandler<Value>) {
+        task.responseJSON(completionHandler: { response in
+            completion(response.result)
+        })
+    }
+    
+}
+
+
+public extension TaskExecuting where TaskType: DownloadRequest, Value == Data {
+    
+    func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType, completion: @escaping ResultHandler<Value>) {
+        task.responseData(completionHandler: { response in
+            completion(response.result)
+        })
     }
     
 }

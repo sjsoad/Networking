@@ -10,7 +10,7 @@ import Foundation
 
 public protocol APIResponsing {
 
-//    associatedtype ResponseType: ExpectedResponseType
+    associatedtype ResponseType
     associatedtype InputValueType
     associatedtype ResultValueType
     
