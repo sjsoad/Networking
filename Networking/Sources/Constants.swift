@@ -11,6 +11,7 @@ import Alamofire
 
 // MARK: - Alamofire -
 
+public typealias Request = Alamofire.Request // Alamofire
 public typealias DataRequest = Alamofire.DataRequest // Alamofire
 public typealias UploadRequest = Alamofire.UploadRequest // Alamofire
 public typealias DownloadRequest = Alamofire.DownloadRequest // Alamofire

@@ -40,42 +40,9 @@ open class DefaultNetworkService: NetworkService {
                 handlers?.executingHandler?(result.isSuccess)
                 requestHandler?(result)
                 guard case .success(let task) = result else { return }
-                
+                DefaultTaskExecuter<RequestType.RequestType>().execute(task, for: request)
             })
     }
-    
-//    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-//        where RequestType : APIDataRequesting, ResponseType : APIResponsing {
-//            privateExecute(request, with: handlers, nil)
-//    }
-//
-//    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                   _ requestHandler: @escaping DataRequestHandler)
-//        where RequestType : APIDataRequesting, ResponseType : APIResponsing {
-//            privateExecute(request, with: handlers, requestHandler)
-//    }
-//
-//    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-//        where RequestType : APIUploadRequesting, ResponseType : APIResponsing {
-//            privateExecute(request, with: handlers, nil)
-//    }
-//
-//    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                   _ requestHandler: @escaping UploadRequestHandler)
-//        where RequestType : APIUploadRequesting, ResponseType : APIResponsing {
-//            privateExecute(request, with: handlers, requestHandler)
-//    }
-//
-//    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-//        where RequestType : APIDownloadRequesting, ResponseType : APIResponsing {
-//            privateExecute(request, with: handlers, nil)
-//    }
-//
-//    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-//                                                   _ requestHandler: @escaping DownloadRequestHandler)
-//        where RequestType : APIDownloadRequesting, ResponseType : APIResponsing {
-//            privateExecute(request, with: handlers, requestHandler)
-//    }
     
     // MARK: - RequestManaging -
     

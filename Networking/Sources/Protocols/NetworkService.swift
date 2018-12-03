@@ -15,24 +15,5 @@ public protocol NetworkService: RequestManaging {
     
     func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                                           _ requestHandler: @escaping RequestHandler<RequestType.RequestType>)
-    
-    
-//    func execute<RequestType: APIDataRequesting, ResponseType: APIResponsing>(_ request: RequestType,
-//                                                                              with handlers: NetworkHandlers<ResponseType>?)
-//    func execute<RequestType: APIDataRequesting, ResponseType: APIResponsing>(_ request: RequestType,
-//                                                                              with handlers: NetworkHandlers<ResponseType>?,
-//                                                                              _ requestHandler: @escaping DataRequestHandler)
-//    
-//    func execute<RequestType: APIUploadRequesting, ResponseType: APIResponsing>(_ request: RequestType,
-//                                                                                with handlers: NetworkHandlers<ResponseType>?)
-//    func execute<RequestType: APIUploadRequesting, ResponseType: APIResponsing>(_ request: RequestType,
-//                                                                                with handlers: NetworkHandlers<ResponseType>?,
-//                                                                                _ requestHandler: @escaping UploadRequestHandler)
-//    
-//    func execute<RequestType: APIDownloadRequesting, ResponseType: APIResponsing>(_ request: RequestType,
-//                                                                                  with handlers: NetworkHandlers<ResponseType>?)
-//    func execute<RequestType: APIDownloadRequesting, ResponseType: APIResponsing>(_ request: RequestType,
-//                                                                                  with handlers: NetworkHandlers<ResponseType>?,
-//                                                                                  _ requestHandler: @escaping DownloadRequestHandler)
-    
+
 }
