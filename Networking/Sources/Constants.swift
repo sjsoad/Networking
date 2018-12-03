@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 
 // MARK: - Alamofire -
+
 public typealias DataRequest = Alamofire.DataRequest // Alamofire
 public typealias UploadRequest = Alamofire.UploadRequest // Alamofire
 public typealias DownloadRequest = Alamofire.DownloadRequest // Alamofire
@@ -21,11 +22,7 @@ public typealias DownloadFileDestination = DownloadRequest.DownloadFileDestinati
 public typealias ErrorHandler = (_ error: Error) -> Void
 public typealias RequestExecutingHandler = (_ executing: Bool) -> Void
 public typealias TokenRefreshingHandler = (_ success: Bool) -> Void
-public typealias ResponseResult<Value> = (_ result: Result<Value>, _ response: HTTPURLResponse?) -> Void
-
-public typealias DataRequestHandler = (Result<DataRequest>) -> Void
-public typealias UploadRequestHandler = (Result<UploadRequest>) -> Void
-public typealias DownloadRequestHandler = (Result<DownloadRequest>) -> Void
+public typealias RequestHandler<RequestType> = (Result<RequestType>) -> Void
 
 public enum DataRequestType {
     case simple([String: Any]?)
@@ -41,12 +38,6 @@ public enum UploadRequestType {
 public enum DownloadRequestType {
     case downloadResuming(Data, DownloadFileDestination)
     case downloadTo([String: Any]?, DownloadFileDestination)
-}
-
-public enum RequestType {
-    case simple
-    case upload
-    case download
 }
 
 public enum ResponseType {

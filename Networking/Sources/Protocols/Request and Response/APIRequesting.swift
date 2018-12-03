@@ -10,7 +10,8 @@ import Foundation
 
 public protocol APIRequesting {
     
-//    static var type: RequestType { get }
+    associatedtype RequestType
+    
     var responseType: ResponseType { get }
     var HTTPMethod: RequestMethod { get }
     var headers: [String: String]? { get }
@@ -20,21 +21,20 @@ public protocol APIRequesting {
 
 public extension APIRequesting {
     
-//    static var type: RequestType { return .upload }
     var responseType: ResponseType { return .json }
     var HTTPMethod: RequestMethod { return .get }
     var headers: [String: String]? { return nil }
     
 }
 
-public protocol APIDataRequesting: APIRequesting {
+public protocol APIDataRequesting: APIRequesting where RequestType == DataRequest {
     var requestType: DataRequestType { get }
 }
 
-public protocol APIUploadRequesting: APIRequesting {
+public protocol APIUploadRequesting: APIRequesting where RequestType == UploadRequest {
     var requestType: UploadRequestType { get }
 }
 
-public protocol APIDownloadRequesting: APIRequesting {
+public protocol APIDownloadRequesting: APIRequesting where RequestType == DownloadRequest {
     var requestType: DownloadRequestType { get }
 }
