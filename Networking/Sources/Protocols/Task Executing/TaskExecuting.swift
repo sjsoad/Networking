@@ -17,22 +17,22 @@ public protocol TaskExecuting {
 public extension TaskExecuting where TaskType: DataRequest {
     
     func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType) {
-        switch request.responseType {
-        case .data:
-            task.responseData(completionHandler: { response in
-                switch response.result {
-                case .failure(let error): break
-                case .success(let value): break
-                }
-            })
-        case .json:
-            task.responseJSON(completionHandler: { response in
-                switch response.result {
-                case .failure(let error): break
-                case .success(let value): break
-                }
-            })
-        }
+//        switch request.responseType {
+//        case .data:
+//            task.responseData(completionHandler: { response in
+//                switch response.result {
+//                case .failure(let error): break
+//                case .success(let value): break
+//                }
+//            })
+//        case .json:
+//            task.responseJSON(completionHandler: { response in
+//                switch response.result {
+//                case .failure(let error): break
+//                case .success(let value): break
+//                }
+//            })
+//        }
     }
     
 }
@@ -40,22 +40,22 @@ public extension TaskExecuting where TaskType: DataRequest {
 public extension TaskExecuting where TaskType: DownloadRequest {
     
     func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType) {
-        switch request.responseType {
-        case .data:
-            task.responseData(completionHandler: { response in
-                switch response.result {
-                case .failure(let error): break
-                case .success(let value): break
-                }
-            })
-        case .json:
-            task.responseJSON(completionHandler: { response in
-                switch response.result {
-                case .failure(let error): break
-                case .success(let value): break
-                }
-            })
-        }
+//        switch request.responseType {
+//        case .data:
+//            task.responseData(completionHandler: { response in
+//                switch response.result {
+//                case .failure(let error): break
+//                case .success(let value): break
+//                }
+//            })
+//        case .json:
+//            task.responseJSON(completionHandler: { response in
+//                switch response.result {
+//                case .failure(let error): break
+//                case .success(let value): break
+//                }
+//            })
+//        }
     }
     
 }

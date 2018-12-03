@@ -41,7 +41,7 @@ public enum DownloadRequestType {
     case downloadTo([String: Any]?, DownloadFileDestination)
 }
 
-public enum ResponseType {
+public enum ExpectedResponseType {
     case json
     case data
 }

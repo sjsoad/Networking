@@ -12,7 +12,6 @@ public protocol APIRequesting {
     
     associatedtype RequestType: Request
     
-    var responseType: ResponseType { get }
     var HTTPMethod: RequestMethod { get }
     var headers: [String: String]? { get }
     var urlString: String { get }
@@ -21,7 +20,6 @@ public protocol APIRequesting {
 
 public extension APIRequesting {
     
-    var responseType: ResponseType { return .json }
     var HTTPMethod: RequestMethod { return .get }
     var headers: [String: String]? { return nil }
     
