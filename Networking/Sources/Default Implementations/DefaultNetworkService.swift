@@ -19,15 +19,15 @@ open class DefaultNetworkService: NetworkService {
         self.sessionManager = sessionManager
         self.errorParser = errorParser
     }
-
-    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-        where RequestType : APIRequesting, ResponseType : APIResponsing {
+    
+    public func execute<RequestType: APIRequesting, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
+        where ResponseType : APIResponsing {
             privateBuild(request, with: handlers, nil)
     }
-    
-    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-                                                   _ requestHandler: @escaping RequestHandler<RequestType.RequestType>)
-        where RequestType : APIRequesting, ResponseType : APIResponsing {
+
+    public func execute<RequestType: APIRequesting, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
+                                                                  _ requestHandler: @escaping RequestHandler<RequestType.RequestType>)
+        where ResponseType : APIResponsing {
             privateBuild(request, with: handlers, requestHandler)
     }
     
@@ -45,11 +45,10 @@ open class DefaultNetworkService: NetworkService {
 
     // 1
     
-    private func privateBuild<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
+    private func privateBuild<RequestType: APIRequesting, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                          _ requestHandler: RequestHandler<RequestType.RequestType>?)
-        where RequestType : APIRequesting, ResponseType : APIResponsing {
-            let builder: RequestBuilding = DefaultRequestBuilder()
-            builder.build(with: sessionManager, from: request, handler: { [weak self] result in
+        where ResponseType : APIResponsing {
+            request.build(with: sessionManager, handler: { [weak self] result in
                 handlers?.executingHandler?(result.isSuccess)
                 requestHandler?(result)
                 guard case .success(let task) = result else { return }
@@ -62,8 +61,7 @@ open class DefaultNetworkService: NetworkService {
     private func privateExecute<RequestType, ResponseType>(_ task: RequestType.RequestType, _ request: RequestType,
                                                            with handlers: NetworkHandlers<ResponseType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            let executor: TaskExecuting = DefaultTaskExecuter()
-            executor.execute(task, for: request, with: ResponseType.self, completion: { [weak self] result in
+            task.execute(with: ResponseType.self, completion: { [weak self] result in
                 handlers?.executingHandler?(false)
                 switch result {
                 case .success(let value):
@@ -78,9 +76,7 @@ open class DefaultNetworkService: NetworkService {
     
     private func privateParse<ResponseType>(_ value: ResponseType.ResponseType, with handlers: NetworkHandlers<ResponseType>?)
         where ResponseType : APIResponsing {
-            let responseParser: ResponseParsing = DefaultResponseParser()
-            responseParser.parse(value, with: errorParser, and: handlers)
+            DefaultResponseParser().parse(value, with: errorParser, and: handlers)
     }
     
 }
-

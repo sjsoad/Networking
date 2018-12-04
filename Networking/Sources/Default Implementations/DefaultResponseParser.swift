@@ -9,9 +9,11 @@ import Foundation
 
 public struct DefaultResponseParser: ResponseParsing {
     
+    public init() {}
+    
     public func parse<ResponseType>(_ value: ResponseType.ResponseType, with errorParser: ErrorParsable, and handlers: NetworkHandlers<ResponseType>?)
         where ResponseType : APIResponsing {
-        print("Default implementation")
+        print("DefaultResponseParser implementation")
     }
     
 }
