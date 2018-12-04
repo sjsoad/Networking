@@ -28,9 +28,11 @@ public extension APIDownloadRequesting {
         }
     }
     
-    public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type, and completion: (Result<ResponseType.ResponseType>) -> Void)
+    public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type,
+                                      and completion: (Result<ResponseType.ResponseType>) -> Void)
         where ResponseType : APIResponsing {
-        print("execute")
+//            task.responseJSON(completionHandler: { response in completion(response.result) })
+//            task.responseData(completionHandler: { response in completion(response.result) })
     }
     
 }
