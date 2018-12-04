@@ -14,13 +14,19 @@ public protocol APIDataRequesting: APIRequesting where RequestType == DataReques
 
 public extension APIDataRequesting {
     
-    func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>) {
+    public func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>) {
         switch requestType {
         case .simple(let parameters):
             let dataRequest = sessionManager.request(urlString, method: HTTPMethod, parameters: parameters, encoding: JSONEncoding.default,
                                                      headers: headers)
             handler(.success(dataRequest))
         }
+    }
+    
+    public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type,
+                                      and completion: (Result<ResponseType.ResponseType>) -> Void)
+        where ResponseType : APIResponsing {
+            print("execute")
     }
     
 }

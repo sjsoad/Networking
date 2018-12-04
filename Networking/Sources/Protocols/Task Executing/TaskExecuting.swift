@@ -13,41 +13,52 @@ public protocol TaskExecuting {
     
 }
 
-extension TaskExecuting {
+extension Request: TaskExecuting {
     
     public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
         where ResponseType : APIResponsing {
-            print("Default")
+        print("Default")
     }
     
 }
 
-extension Request: TaskExecuting {}
+//extension DataRequest: DataTaskExecuting {}
+//extension DownloadRequest: DownloadTaskExecuting {}
 
-extension TaskExecuting where Self: DownloadRequest {
-    
-    func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
-        where ResponseType : APIResponsing {
-            print("DownloadRequest")
-    }
-    
-    func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
-        where ResponseType : APIResponsing, ResponseType.ResponseType == Data {
-            print("DownloadRequest")
-    }
-    
-}
+//    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+//        where ResponseType : APIResponsing, ResponseType.ResponseType == Any {
+//            print("Default")
+//    }
+//
+//    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+//        where ResponseType : APIResponsing, ResponseType.ResponseType == Data {
+//            print("Default")
+//    }
 
-extension TaskExecuting where Self: DataRequest {
-    
-    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
-        where ResponseType : APIResponsing {
-        print("Request")
-    }
-    
-    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
-        where ResponseType : APIResponsing, ResponseType.ResponseType == Data {
-            print("Request")
-    }
-    
-}
+//extension DataRequest {
+//
+//    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+//        where ResponseType : APIResponsing {
+//            print("DownloadRequest")
+//    }
+//
+//    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+//        where ResponseType : APIResponsing, ResponseType.ResponseType == Data {
+//            print("DownloadRequest")
+//    }
+//
+//}
+
+//extension DownloadRequest {
+//
+//    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+//        where ResponseType : APIResponsing {
+//        print("Request")
+//    }
+//
+//    public func execute<ResponseType>(with response: ResponseType.Type, completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+//        where ResponseType : APIResponsing, ResponseType.ResponseType == Data {
+//            print("Request")
+//    }
+//
+//}

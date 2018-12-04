@@ -18,7 +18,8 @@ public protocol APIRequesting {
     var urlString: String { get }
 
     func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>)
-    
+    func execute<ResponseType: APIResponsing>(_ task: RequestType, with response: ResponseType.Type,
+                                              and completion: (Result<ResponseType.ResponseType>) -> Void)
 }
 
 public extension APIRequesting {
@@ -26,7 +27,4 @@ public extension APIRequesting {
     var HTTPMethod: RequestMethod { return .get }
     var headers: [String: String]? { return nil }
     
-    func build() {
-        print("APIRequesting")
-    }
 }

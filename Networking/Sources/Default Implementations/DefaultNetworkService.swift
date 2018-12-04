@@ -61,15 +61,18 @@ open class DefaultNetworkService: NetworkService {
     private func privateExecute<RequestType, ResponseType>(_ task: RequestType.RequestType, _ request: RequestType,
                                                            with handlers: NetworkHandlers<ResponseType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            task.execute(with: ResponseType.self, completion: { [weak self] result in
-                handlers?.executingHandler?(false)
-                switch result {
-                case .success(let value):
-                    self?.privateParse(value, with: handlers)
-                case .failure(let error):
-                    handlers?.errorHandler?(error)
-                }
+            request.execute(task, with: ResponseType.self, and: { result in
+                
             })
+//            task.execute(with: ResponseType.self, completion: { [weak self] result in
+//                handlers?.executingHandler?(false)
+//                switch result {
+//                case .success(let value):
+//                    self?.privateParse(value, with: handlers)
+//                case .failure(let error):
+//                    handlers?.errorHandler?(error)
+//                }
+//            })
     }
     
     // 3

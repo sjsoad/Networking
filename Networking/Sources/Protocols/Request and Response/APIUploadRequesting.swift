@@ -14,7 +14,7 @@ public protocol APIUploadRequesting: APIRequesting where RequestType == UploadRe
 
 public extension APIUploadRequesting {
     
-    func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>) {
+    public func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>) {
         switch requestType {
         case .uploadData(let data):
             let uploadRequest = sessionManager.upload(data, to: urlString, method: HTTPMethod, headers: headers)
@@ -30,6 +30,12 @@ public extension APIUploadRequesting {
         case .none:
             break
         }
+    }
+    
+    public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type,
+                                      and completion: (Result<ResponseType.ResponseType>) -> Void)
+        where ResponseType : APIResponsing {
+        print("execute")
     }
     
     // MARK: - Private -
