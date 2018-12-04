@@ -7,12 +7,30 @@
 
 import Foundation
 
-struct DefaultResponseParser<IncomingResponseType: APIResponsing>: ResponseParsing {
+public struct DefaultResponseParser: ResponseParsing {
     
-    typealias ResponseType = IncomingResponseType
+    public func parse<ResponseType>(_ value: ResponseType.ResponseType, with errorParser: ErrorParsable, and handlers: NetworkHandlers<ResponseType>?)
+        where ResponseType : APIResponsing {
+        print("Default implementation")
+    }
     
-    func parse(_ value: ValueType, with errorParser: ErrorParsable, and handlers: NetworkHandlers<ResponseType>?) {
-        fatalError("IncomingResponseType not implemented in library. Write extension to DefaultResponseParser protocol")
+}
+
+public extension DefaultResponseParser {
+    
+    public func parse<ResponseType>(_ value: ResponseType.ResponseType, with errorParser: ErrorParsable, and handlers: NetworkHandlers<ResponseType>?)
+        where ResponseType : APIResponsing, ResponseType.ResponseType == Any {
+            errorParser.parseError(from: value).map({ handlers?.errorHandler?($0) }) ??
+                ResponseType(with: value).result.map({ handlers?.successHandler?($0) })
+    }
+    
+}
+
+public extension DefaultResponseParser {
+    
+    public func parse<ResponseType>(_ value: ResponseType.ResponseType, with errorParser: ErrorParsable, and handlers: NetworkHandlers<ResponseType>?)
+        where ResponseType: APIResponsing, ResponseType.ResponseType == Data {
+            ResponseType(with: value).result.map({ handlers?.successHandler?($0) })
     }
     
 }

@@ -1,18 +1,57 @@
 //
 //  DefaultTaskExecuter.swift
-//  AERecord
+//  
 //
 //  Created by Sergey Kostyan on 12/3/18.
 //
 
-import Foundation
+import Alamofire
 
-public struct DefaultTaskExecuter<IncomingTaskType: Request, IncomingValue>: TaskExecuting {
+public struct DefaultTaskExecuter: TaskExecuting {
     
-    public typealias TaskType = IncomingTaskType
-    public typealias Value = IncomingValue
-    
-    public func execute<RequestType: APIRequesting>(_ task: TaskType, for request: RequestType, completion: @escaping ResultHandler<Value>) {
-        fatalError("TaskType not implemented in library. Write extension to TaskExecuting protocol")
+    public func execute<TaskType, RequestType, ResponseType>(_ task: TaskType, for request: RequestType, with response: ResponseType.Type,
+                                                             completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+        where TaskType : Request, RequestType : APIRequesting, ResponseType : APIResponsing {
+        print("Default implementation")
     }
+}
+
+public extension DefaultTaskExecuter {
+
+    public func execute<TaskType, RequestType, ResponseType>(_ task: TaskType, for request: RequestType, with response: ResponseType.Type,
+                                                             completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+        where TaskType : DataRequest, RequestType : APIRequesting, ResponseType : APIResponsing, ResponseType.ResponseType == Any {
+            task.responseJSON(completionHandler: { completion($0.result) })
+    }
+
+}
+
+public extension DefaultTaskExecuter {
+
+    public func execute<TaskType, RequestType, ResponseType>(_ task: TaskType, for request: RequestType, with response: ResponseType.Type,
+                                                             completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+        where TaskType : DataRequest, RequestType : APIRequesting, ResponseType : APIResponsing, ResponseType.ResponseType == Data {
+            task.responseData(completionHandler: { completion($0.result) })
+    }
+
+}
+
+public extension DefaultTaskExecuter {
+
+    public func execute<TaskType, RequestType, ResponseType>(_ task: TaskType, for request: RequestType, with response: ResponseType.Type,
+                                                             completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+        where TaskType : DownloadRequest, RequestType : APIRequesting, ResponseType : APIResponsing, ResponseType.ResponseType == Any {
+            task.responseJSON(completionHandler: { completion($0.result) })
+    }
+
+}
+
+public extension DefaultTaskExecuter {
+
+    public func execute<TaskType, RequestType, ResponseType>(_ task: TaskType, for request: RequestType, with response: ResponseType.Type,
+                                                             completion: @escaping (Result<ResponseType.ResponseType>) -> Void)
+        where TaskType : DownloadRequest, RequestType : APIRequesting, ResponseType : APIResponsing, ResponseType.ResponseType == Data {
+            task.responseData(completionHandler: { completion($0.result) })
+    }
+
 }

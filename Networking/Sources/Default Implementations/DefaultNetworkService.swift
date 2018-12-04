@@ -62,7 +62,8 @@ open class DefaultNetworkService: NetworkService {
     private func privateExecute<RequestType, ResponseType>(_ task: RequestType.RequestType, _ request: RequestType,
                                                            with handlers: NetworkHandlers<ResponseType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            DefaultTaskExecuter<RequestType.RequestType, ResponseType.ResponseType>().execute(task, for: request, completion: { [weak self] result in
+            let executor: TaskExecuting = DefaultTaskExecuter()
+            executor.execute(task, for: request, with: ResponseType.self, completion: { [weak self] result in
                 handlers?.executingHandler?(false)
                 switch result {
                 case .success(let value):
@@ -77,7 +78,8 @@ open class DefaultNetworkService: NetworkService {
     
     private func privateParse<ResponseType>(_ value: ResponseType.ResponseType, with handlers: NetworkHandlers<ResponseType>?)
         where ResponseType : APIResponsing {
-            DefaultResponseParser<ResponseType>().parse(value, with: errorParser, and: handlers)
+            let responseParser: ResponseParsing = DefaultResponseParser()
+            responseParser.parse(value, with: errorParser, and: handlers)
     }
     
 }
