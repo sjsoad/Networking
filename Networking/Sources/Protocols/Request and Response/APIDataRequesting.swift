@@ -24,7 +24,7 @@ public extension APIDataRequesting {
     }
     
     public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type,
-                                      and completion: (Result<ResponseType.ResponseType>) -> Void)
+                                      and completion: ResultHandler<ResponseType.ResponseType>)
         where ResponseType : APIResponsing {
 //            task.responseJSON(completionHandler: { response in completion(response.result) })
 //            task.responseData(completionHandler: { response in completion(response.result) })

@@ -17,35 +17,4 @@ public protocol APIResponsing {
     
     init(with value: ResponseType?)
     
-    func retrieveResponse<RequestType: APIRequesting>(from request: RequestType, _ task: RequestType.RequestType,
-                                                      _ completion: @escaping (Result<ResponseType>) -> Void)
-    
-}
-
-public protocol APIJSONResponsing: APIResponsing where ResponseType == Any {
-    
-}
-
-extension APIJSONResponsing {
-    
-    public func retrieveResponse<RequestType>(from request: RequestType, _ task: DataRequest,
-                                              _ completion: @escaping (Result<ResponseType>) -> Void)
-        where RequestType : APIRequesting {
-            task.responseJSON(completionHandler: { completion($0.result) })
-    }
-    
-}
-
-public protocol APIDataResponsing: APIResponsing where ResponseType == Data {
-    
-}
-
-extension APIDataResponsing {
-    
-    public func retrieveResponse<RequestType>(from request: RequestType, _ task: DataRequest,
-                                              _ completion: @escaping (Result<ResponseType>) -> Void)
-        where RequestType : APIRequesting {
-        task.responseData(completionHandler: { completion($0.result) })
-    }
-    
 }
