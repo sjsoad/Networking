@@ -12,23 +12,32 @@ open class DefaultNetworkService: NetworkService {
     
     private let sessionManager: SessionManager
     private let errorParser: ErrorParsable
+    private let taskExecutor: TaskExecuting
     
     // MARK: - Public -
     
-    public required init(with sessionManager: SessionManager = SessionManager(), errorParser: ErrorParsable) {
+    public required init(with sessionManager: SessionManager = SessionManager(), errorParser: ErrorParsable,
+                         taskExecutor: TaskExecuting = DefaultTaskExecutor()) {
         self.sessionManager = sessionManager
         self.errorParser = errorParser
+        self.taskExecutor = taskExecutor
     }
     
     public func execute<RequestType: APIRequesting, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
         where ResponseType : APIResponsing {
-            privateBuild(request, with: handlers, nil)
+            privateBuild(request, with: handlers, nil, { [weak self] task in
+                self.map({ $0.privateExecute(task, request, with: handlers, { [weak self] result in
+                    self.map({ $0.privateParse(result, with: handlers) })
+                }) })
+            })
     }
 
     public func execute<RequestType: APIRequesting, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                                   _ requestHandler: @escaping RequestHandler<RequestType.RequestType>)
         where ResponseType : APIResponsing {
-            privateBuild(request, with: handlers, requestHandler)
+            privateBuild(request, with: handlers, requestHandler, { task in
+                
+            })
     }
     
     // MARK: - RequestManaging -
@@ -46,29 +55,29 @@ open class DefaultNetworkService: NetworkService {
     // 1
     
     private func privateBuild<RequestType: APIRequesting, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
-                                                         _ requestHandler: RequestHandler<RequestType.RequestType>?)
+                                                                        _ requestHandler: RequestHandler<RequestType.RequestType>?,
+                                                                        _ completion: @escaping (RequestType.RequestType) -> Void)
         where ResponseType : APIResponsing {
-            request.build(with: sessionManager, handler: { [weak self] result in
+            request.build(with: sessionManager, handler: { result in
                 handlers?.executingHandler?(result.isSuccess)
                 requestHandler?(result)
                 guard case .success(let task) = result else { return }
-                self?.privateExecute(task, request, with: handlers)
+                completion(task)
             })
     }
     
     // 2
     
     private func privateExecute<RequestType, ResponseType>(_ task: RequestType.RequestType, _ request: RequestType,
-                                                           with handlers: NetworkHandlers<ResponseType>?)
+                                                           with handlers: NetworkHandlers<ResponseType>?,
+                                                           _ completion: @escaping (ResponseType.ResponseType) -> Void)
         where RequestType : APIRequesting, ResponseType : APIResponsing {
-            request.execute(task, with: ResponseType.self, and: { result in
-                
-            })
-//            task.execute(with: ResponseType.self, completion: { [weak self] result in
+            request.execute(with: taskExecutor, task)
+//            taskExecutor.execute(task, with: { (result: Result<ResponseType.ResponseType>) in
 //                handlers?.executingHandler?(false)
 //                switch result {
 //                case .success(let value):
-//                    self?.privateParse(value, with: handlers)
+//                    completion(value)
 //                case .failure(let error):
 //                    handlers?.errorHandler?(error)
 //                }

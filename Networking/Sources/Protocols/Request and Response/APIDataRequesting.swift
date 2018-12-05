@@ -22,12 +22,9 @@ public extension APIDataRequesting {
             handler(.success(dataRequest))
         }
     }
-    
-    public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type,
-                                      and completion: ResultHandler<ResponseType.ResponseType>)
-        where ResponseType : APIResponsing {
-//            task.responseJSON(completionHandler: { response in completion(response.result) })
-//            task.responseData(completionHandler: { response in completion(response.result) })
+
+    public func execute(with executor: TaskExecuting, _ task: RequestType) {
+        executor.execute(task, with: <#T##(Result<ResponseType>) -> Void#>)
     }
     
 }

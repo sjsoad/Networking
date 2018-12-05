@@ -27,16 +27,10 @@ public extension APIUploadRequesting {
             handler(.success(uploadRequest))
         case .uploadMultipart(let parameters, let multipartParameters):
             multipartRequest(with: sessionManager, parameters, multipartParameters, handler)
-        case .none:
-            break
         }
     }
     
-    public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type,
-                                      and completion: ResultHandler<ResponseType.ResponseType>)
-        where ResponseType : APIResponsing {
-//            task.responseJSON(completionHandler: { response in completion(response.result) })
-//            task.responseData(completionHandler: { response in completion(response.result) })
+    public func execute(with executor: TaskExecuting, _ task: RequestType) {
     }
     
     // MARK: - Private -

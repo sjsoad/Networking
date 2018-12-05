@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sergey Kostyan. All rights reserved.
 //
 
-import Alamofire
+import Foundation
 
 public protocol APIResponsing {
     

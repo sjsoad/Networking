@@ -23,16 +23,11 @@ public extension APIDownloadRequesting {
             let downloadRequest = sessionManager.download(urlString, method: HTTPMethod, parameters: parameters,
                                                           headers: headers, to: destination)
             handler(.success(downloadRequest))
-        case .none:
-            break
         }
     }
     
-    public func execute<ResponseType>(_ task: RequestType, with response: ResponseType.Type,
-                                      and completion: ResultHandler<ResponseType.ResponseType>)
-        where ResponseType : APIResponsing {
-//            task.responseJSON(completionHandler: { response in completion(response.result) })
-//            task.responseData(completionHandler: { response in completion(response.result) })
+    public func execute(with executor: TaskExecuting, _ task: RequestType) {
+        
     }
     
 }

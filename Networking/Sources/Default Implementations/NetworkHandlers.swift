@@ -5,7 +5,7 @@
 //  Created by Sergey Kostyan on 02.09.2018.
 //
 
-import Alamofire
+import Foundation
 
 public class NetworkHandlers<ResponseType: APIResponsing> {
     

@@ -31,7 +31,6 @@ public enum DataRequestType {
 }
 
 public enum UploadRequestType {
-    case none
     case uploadData(Data)
     case uploadURL(URL)
     case uploadStream(InputStream)
@@ -39,7 +38,6 @@ public enum UploadRequestType {
 }
 
 public enum DownloadRequestType {
-    case none
     case downloadResuming(Data, DownloadFileDestination)
     case downloadTo([String: Any]?, DownloadFileDestination)
 }
