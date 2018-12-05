@@ -11,8 +11,8 @@ public struct DefaultTaskExecutor: TaskExecuting {
     
     public  init() {}
     
-    public func execute<RequestType, ResponseType>(_ task: RequestType, with completion: @escaping ResultHandler<ResponseType>
-        ) where RequestType : Request {
+    public func execute<RequestType, ResponseType>(_ task: RequestType, with completion: @escaping ResultHandler<ResponseType>)
+        where RequestType : Request {
         print("Your pair of request and response is not supported. Extend TaskExecuting with function overload")
     }
     
