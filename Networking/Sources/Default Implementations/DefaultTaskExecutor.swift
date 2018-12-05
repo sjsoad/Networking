@@ -20,6 +20,11 @@ public struct DefaultTaskExecutor: TaskExecuting {
 
 public extension DefaultTaskExecutor {
     
+    public func execute<RequestType, ResponseType>(_ task: RequestType, with completion: @escaping ResultHandler<ResponseType>)
+        where RequestType : DataRequest, ResponseType: Any {
+            print("Your pair of request and response is not supported. Extend TaskExecuting with function overload")
+    }
+    
     func execute(_ task: DataRequest, with completion: @escaping ResultHandler<Any>) {
         print("DataRequest, Any")
         //        request.responseJSON(completionHandler: { completion($0.result) })
