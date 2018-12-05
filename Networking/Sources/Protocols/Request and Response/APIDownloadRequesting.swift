@@ -26,8 +26,8 @@ public extension APIDownloadRequesting {
         }
     }
     
-    public func execute(with executor: TaskExecuting, _ task: RequestType) {
-        
+    public func execute<ResponseType>(with executor: TaskExecuting, _ task: RequestType, handler: @escaping ResultHandler<ResponseType>) {
+        executor.execute(task, with: handler)
     }
     
 }

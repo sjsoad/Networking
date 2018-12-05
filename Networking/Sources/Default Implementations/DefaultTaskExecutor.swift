@@ -18,7 +18,7 @@ public struct DefaultTaskExecutor: TaskExecuting {
     
 }
 
-extension TaskExecuting {
+public extension DefaultTaskExecutor {
     
     func execute(_ task: DataRequest, with completion: @escaping ResultHandler<Any>) {
         print("DataRequest, Any")
