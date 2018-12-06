@@ -16,21 +16,32 @@ public extension APIDownloadRequesting {
     
     var parameterEncoding: ParameterEncoding { return URLEncoding.default }
     
-    public func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>) {
+    public func build(with sessionManager: SessionManager, completion: @escaping RequestHandler<RequestType>) {
         switch requestType {
         case .downloadResuming(let data, let destination):
             let downloadRequest = sessionManager.download(resumingWith: data, to: destination)
-            handler(.success(downloadRequest))
+            completion(.success(downloadRequest))
         case .downloadTo(let parameters, let destination):
             let downloadRequest = sessionManager.download(urlString, method: HTTPMethod, parameters: parameters, encoding: parameterEncoding,
                                                           headers: headers, to: destination)
-            handler(.success(downloadRequest))
+            completion(.success(downloadRequest))
         }
-    }
-    
-    public func execute<ResponseType>(with executor: TaskExecuting, _ task: RequestType, handler: @escaping ResultHandler<ResponseType>) {
-        executor.execute(task, with: handler)
     }
     
 }
 
+public extension APIDownloadRequesting where ResponseType == Any {
+    
+    public func execute(_ task: RequestType, completion: @escaping ResultHandler<ResponseType>) {
+        task.responseJSON(completionHandler: { completion($0.result) })
+    }
+    
+}
+
+public extension APIDownloadRequesting where ResponseType == Data {
+    
+    public func execute(_ task: RequestType, completion: @escaping ResultHandler<ResponseType>) {
+        task.responseData(completionHandler: { completion($0.result) })
+    }
+    
+}
