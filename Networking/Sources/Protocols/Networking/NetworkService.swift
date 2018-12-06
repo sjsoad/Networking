@@ -9,7 +9,7 @@ import Alamofire
 
 public protocol NetworkService: RequestManaging {
     
-    init(with sessionManager: SessionManager, errorParser: ErrorParsable, taskExecutor: TaskExecuting)
+    init(with sessionManager: SessionManager, errorParser: ErrorParsable)
     
     func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
         where RequestType.ResponseType == ResponseType.ResponseType

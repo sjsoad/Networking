@@ -12,32 +12,23 @@ open class DefaultNetworkService: NetworkService {
     
     private let sessionManager: SessionManager
     private let errorParser: ErrorParsable
-    private let taskExecutor: TaskExecuting
     
     // MARK: - Public -
     
-    public required init(with sessionManager: SessionManager = SessionManager(), errorParser: ErrorParsable,
-                         taskExecutor: TaskExecuting = DefaultTaskExecutor()) {
+    public required init(with sessionManager: SessionManager = SessionManager(), errorParser: ErrorParsable) {
         self.sessionManager = sessionManager
         self.errorParser = errorParser
-        self.taskExecutor = taskExecutor
     }
     
     public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
         where RequestType: APIRequesting, ResponseType: APIResponsing, RequestType.ResponseType == ResponseType.ResponseType {
-            privateBuild(request, with: handlers, nil, { [weak self] (task: RequestType.RequestType) in
-                self.map({ $0.privateExecute(request, task, with: handlers, { [weak self] (response: RequestType.ResponseType) in
-                    self.map({ $0.privateCheck(response, from: request, with: handlers) })
-                }) })
-            })
+            executeChain(request, with: handlers, nil)
     }
     
     public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                    _ requestHandler: @escaping RequestHandler<RequestType.RequestType>)
-        where RequestType : APIRequesting, ResponseType : APIResponsing {
-            privateBuild(request, with: handlers, requestHandler, { task in
-                
-            })
+        where RequestType: APIRequesting, ResponseType: APIResponsing, RequestType.ResponseType == ResponseType.ResponseType {
+            executeChain(request, with: handlers, requestHandler)
     }
     
     // MARK: - RequestManaging -
@@ -52,6 +43,16 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Private -
 
+    private func executeChain<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
+                                                         _ requestHandler: RequestHandler<RequestType.RequestType>?)
+        where RequestType : APIRequesting, ResponseType : APIResponsing, RequestType.ResponseType == ResponseType.ResponseType {
+            privateBuild(request, with: handlers, requestHandler, { [weak self] (task: RequestType.RequestType) in
+                self.map({ $0.privateExecute(request, task, with: handlers, { [weak self] (response: RequestType.ResponseType) in
+                    self.map({ $0.privateCheck(response, from: request, with: handlers) })
+                }) })
+            })
+    }
+    
     // 1
     
     private func privateBuild<RequestType: APIRequesting, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
