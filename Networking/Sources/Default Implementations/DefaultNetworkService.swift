@@ -22,13 +22,13 @@ open class DefaultNetworkService: NetworkService {
     
     public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
         where RequestType: APIRequesting, ResponseType: APIResponsing, RequestType.ResponseType == ResponseType.ResponseType {
-            executeChain(request, with: handlers, nil)
+            executeChain(for: request, with: handlers, nil)
     }
     
     public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                    _ requestHandler: @escaping RequestHandler<RequestType.RequestType>)
         where RequestType: APIRequesting, ResponseType: APIResponsing, RequestType.ResponseType == ResponseType.ResponseType {
-            executeChain(request, with: handlers, requestHandler)
+            executeChain(for: request, with: handlers, requestHandler)
     }
     
     // MARK: - RequestManaging -
@@ -43,7 +43,7 @@ open class DefaultNetworkService: NetworkService {
     
     // MARK: - Private -
 
-    private func executeChain<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
+    private func executeChain<RequestType, ResponseType>(for request: RequestType, with handlers: NetworkHandlers<ResponseType>?,
                                                          _ requestHandler: RequestHandler<RequestType.RequestType>?)
         where RequestType : APIRequesting, ResponseType : APIResponsing, RequestType.ResponseType == ResponseType.ResponseType {
             privateBuild(request, with: handlers, requestHandler, { [weak self] (task: RequestType.RequestType) in
