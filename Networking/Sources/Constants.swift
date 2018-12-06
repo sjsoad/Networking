@@ -16,6 +16,7 @@ public typealias DataRequest = Alamofire.DataRequest // Alamofire
 public typealias UploadRequest = Alamofire.UploadRequest // Alamofire
 public typealias DownloadRequest = Alamofire.DownloadRequest // Alamofire
 public typealias RequestMethod = Alamofire.HTTPMethod // Alamofire
+public typealias ParameterEncoding = Alamofire.ParameterEncoding // Alamofire
 public typealias DownloadFileDestination = DownloadRequest.DownloadFileDestination // Alamofire
 
 // MARK: - Custom -

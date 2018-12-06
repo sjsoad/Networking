@@ -14,13 +14,15 @@ public protocol APIDownloadRequesting: APIRequesting where RequestType == Downlo
 
 public extension APIDownloadRequesting {
     
+    var parameterEncoding: ParameterEncoding { return URLEncoding.default }
+    
     public func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>) {
         switch requestType {
         case .downloadResuming(let data, let destination):
             let downloadRequest = sessionManager.download(resumingWith: data, to: destination)
             handler(.success(downloadRequest))
         case .downloadTo(let parameters, let destination):
-            let downloadRequest = sessionManager.download(urlString, method: HTTPMethod, parameters: parameters,
+            let downloadRequest = sessionManager.download(urlString, method: HTTPMethod, parameters: parameters, encoding: parameterEncoding,
                                                           headers: headers, to: destination)
             handler(.success(downloadRequest))
         }

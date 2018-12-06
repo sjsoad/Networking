@@ -17,7 +17,7 @@ public extension APIDataRequesting {
     public func build(with sessionManager: SessionManager, handler: @escaping RequestHandler<RequestType>) {
         switch requestType {
         case .simple(let parameters):
-            let dataRequest = sessionManager.request(urlString, method: HTTPMethod, parameters: parameters, encoding: JSONEncoding.default,
+            let dataRequest = sessionManager.request(urlString, method: HTTPMethod, parameters: parameters, encoding: parameterEncoding,
                                                      headers: headers)
             handler(.success(dataRequest))
         }

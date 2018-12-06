@@ -23,8 +23,8 @@ open class DefaultNetworkService: NetworkService {
         self.taskExecutor = taskExecutor
     }
     
-    public func execute<RequestType, ResponseType>(_ request: RequestType, with handlers: NetworkHandlers<ResponseType>?)
-        where RequestType: APIRequesting, ResponseType : APIResponsing {
+    public func execute<RequestType: APIRequesting, ResponseType: APIResponsing>(_ request: RequestType,
+                                                                                 with handlers: NetworkHandlers<ResponseType>?) {
             privateBuild(request, with: handlers, nil, { [weak self] (task: RequestType.RequestType) in
                 self?.privateExecute(task, with: handlers, { (result: ResponseType.ResponseType) in
                     print("executed")
